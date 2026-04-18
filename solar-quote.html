@@ -84,8 +84,6 @@ nav{background:var(--white);border-bottom:1px solid var(--gray-200);padding:0 2r
 .contact-btn{display:inline-flex;align-items:center;gap:8px;background:white;color:var(--green-700);padding:0.75rem 1.75rem;border-radius:var(--radius-sm);font-weight:600;font-size:0.9rem;text-decoration:none;transition:all 0.2s;}
 .contact-btn:hover{background:var(--green-50);}
 
-.api-setup{background:#fff8e1;border:1px solid #ffe082;border-radius:var(--radius-sm);padding:1rem 1.25rem;margin-bottom:1.25rem;font-size:0.85rem;color:#5d4037;display:none;}
-.api-setup strong{display:block;margin-bottom:4px;}
 </style>
 </head>
 <body>
@@ -114,10 +112,7 @@ nav{background:var(--white);border-bottom:1px solid var(--gray-200);padding:0 2r
 
 <div class="container">
 
-  <div class="api-setup" id="api-warning">
-    <strong>⚙️ API Key Required</strong>
-    Open this file and replace <code>AIzaSyD8tZpSLHLHX5PPx4nOvoxHwzRNqLLeoqI</code> with your actual Gemini API key to enable AI responses.
-  </div>
+
 
   <div class="card">
     <div class="card-title">Your electricity bill details</div>
@@ -205,16 +200,13 @@ nav{background:var(--white);border-bottom:1px solid var(--gray-200);padding:0 2r
 </div>
 
 <script>
-const GEMINI_API_KEY = 'AIzaSyD8tZpSLHLHX5PPx4nOvoxHwzRNqLLeoqI';
+const GEMINI_API_KEY = 'AIzaSyAF4jmuceih46l1pNSPXQ0Q7Trb3yPUpo4';
 
 function onInputChange() {
   const bill = parseFloat(document.getElementById('bill-amt').value) || 0;
   const units = parseFloat(document.getElementById('units').value) || 0;
   const btn = document.getElementById('calc-btn');
   btn.disabled = !(bill >= 100 && units >= 10);
-  if (GEMINI_API_KEY === 'AIzaSyD8tZpSLHLHX5PPx4nOvoxHwzRNqLLeoqI') {
-    document.getElementById('api-warning').style.display = 'block';
-  }
 }
 
 function calcMetrics() {
@@ -252,14 +244,6 @@ async function generateQuote() {
   document.getElementById('calc-btn').style.display = 'none';
   document.getElementById('loading').style.display = 'block';
   document.getElementById('results').style.display = 'none';
-
-  if (GEMINI_API_KEY === 'AIzaSyD8tZpSLHLHX5PPx4nOvoxHwzRNqLLeoqI') {
-    document.getElementById('ai-text').textContent = 'Hi ' + name + '! Based on your bill, a ' + m.systemKw + 'kW solar system with ' + m.panels + ' panels would be ideal for your ' + propLabel + ' in Mumbai. At ₹' + m.ratePerUnit + '/unit, you\'re spending more than necessary — solar could cut your bill by 85%, saving ₹' + m.monthlySavings.toLocaleString('en-IN') + ' every month. With Mumbai\'s excellent 5.5 peak sun hours daily, your investment of ' + costStr + ' pays back in just ' + m.payback + ' years — and then it\'s pure savings for the next 20+ years!';
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('results').style.display = 'block';
-    document.getElementById('calc-btn').style.display = 'flex';
-    return;
-  }
 
   const prompt = `You are a friendly solar energy expert at Shashwat Solar Energy, Mumbai. Write a warm, personalized 3-4 sentence quote analysis for a customer named ${name}.
 
