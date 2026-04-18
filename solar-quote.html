@@ -254,7 +254,7 @@ nav{background:var(--white);border-bottom:1px solid var(--s200);padding:0 2rem;d
 </div>
 
 <script>
-const GEMINI_KEY='AIzaSyAF4jmuceih46l1pNSPXQ0Q7Trb3yPUpo4';
+const WORKER_URL='https://rapid-art-6ccc.info-shashwatsolar.workers.dev';
 const SHEET_URL='https://script.google.com/macros/s/AKfycbyfwWp_T5LrBGkTBGDGCtSpNC0AbPTDlnyVOG0dysgCp2IeVQsEceHfKWiHMVYW5R-FQA/exec';
 let currentTab='upload';
 let uploadedFile=null;
@@ -295,7 +295,7 @@ async function scanBill(){
 2. Units consumed in kWh (number only)
 Respond in this exact JSON only: {"billAmount":5000,"units":350}
 If not found use 0.`;
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,{
+    const res=await fetch(WORKER_URL,{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({contents:[{parts:[
         {inline_data:{mime_type:mimeType.includes('pdf')?'application/pdf':mimeType,data:base64}},
@@ -380,7 +380,7 @@ Recommendation: ${m.systemKw}kW (${m.panels} panels), ${m.costStr}, saves ₹${m
 Be specific with numbers. Mention Mumbai's 5.5 peak sun hours. End with free site inspection. Under 90 words, no bullet points.`;
 
   try{
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,{
+    const res=await fetch(WORKER_URL,{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})
     });
