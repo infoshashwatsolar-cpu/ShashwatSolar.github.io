@@ -349,8 +349,7 @@ function calcMetrics(bill,units,prop){
   const payback=Math.round((totalCost/(monthlySavings*12))*10)/10;
   const co2=Math.round(systemKw*1.5*365*0.82/1000*10)/10;
   const ratePerUnit=Math.round(bill/units);
-  const lakhs=totalCost/100000;
-  const costStr=lakhs>=1?'₹'+(Math.round(lakhs*10)/10)+'L':'₹'+totalCost.toLocaleString('en-IN');
+  const costStr='\u20B9'+totalCost.toLocaleString('en-IN');
   return{systemKw,panels,totalCost,costStr,monthlySavings,payback,co2,ratePerUnit};
 }
 
@@ -368,7 +367,7 @@ async function generateQuote(){
   document.getElementById('r-kw').textContent=m.systemKw+' kW';
   document.getElementById('r-panels').textContent=m.panels;
   document.getElementById('r-cost').textContent=m.costStr;
-  document.getElementById('r-savings').textContent='₹'+m.monthlySavings.toLocaleString('en-IN');
+  document.getElementById('r-savings').textContent='\u20B9'+m.monthlySavings.toLocaleString('en-IN');
   document.getElementById('r-payback').textContent=m.payback+' yrs';
   document.getElementById('r-co2').textContent=m.co2+' T';
 
@@ -454,16 +453,17 @@ function downloadPDF(){
   doc.setTextColor(255,255,255);doc.setFontSize(8);doc.setFont('helvetica','bold');
   doc.text('Parameter',20,112);doc.text('Your Data',82,112);doc.text('Recommendation',132,112);
 
+  const R='\u20B9';
   const rows=[
-    ['Monthly electricity bill','₹'+(d.bill||0).toLocaleString('en-IN'),'Offset 85% with solar'],
+    ['Monthly electricity bill',R+(d.bill||0).toLocaleString('en-IN'),'Offset 85% with solar'],
     ['Units consumed',''+d.units+' kWh/month','Covered by system'],
-    ['Rate per unit','₹'+d.ratePerUnit+'/unit','₹0 for solar units'],
+    ['Rate per unit',R+d.ratePerUnit+'/unit',R+'0 for solar units'],
     ['Recommended system size','Based on usage',d.systemKw+' kW monocrystalline'],
     ['Number of panels','Based on system',d.panels+' panels (400W each)'],
-    ['Estimated installation cost','—',d.costStr],
-    ['Monthly savings','—','₹'+d.monthlySavings.toLocaleString('en-IN')],
+    ['Estimated installation cost','—',R+d.totalCost.toLocaleString('en-IN')],
+    ['Monthly savings','—',R+d.monthlySavings.toLocaleString('en-IN')],
     ['Simple payback period','—',d.payback+' years'],
-    ['CO₂ saved annually','—',d.co2+' tonnes/year'],
+    ['CO2 saved annually','—',d.co2+' tonnes/year'],
     ['System lifespan','—','25+ years'],
   ];
   rows.forEach((row,i)=>{
@@ -475,14 +475,16 @@ function downloadPDF(){
   });
 
   const aiY=120+rows.length*9+8;
-  doc.setFillColor(240,250,242);doc.roundedRect(15,aiY,180,28,3,3,'F');
+  const aiRaw=document.getElementById('ai-text').textContent;
+  const aiLines=doc.splitTextToSize(aiRaw,168);
+  const aiBoxH=Math.max(32,aiLines.length*6+20);
+  doc.setFillColor(240,250,242);doc.roundedRect(15,aiY,180,aiBoxH,3,3,'F');
   doc.setFillColor(46,153,71);doc.roundedRect(18,aiY+4,28,6,2,2,'F');
   doc.setTextColor(255,255,255);doc.setFontSize(6.5);doc.setFont('helvetica','bold');doc.text('AI ANALYSIS',20,aiY+8);
   doc.setTextColor(13,51,24);doc.setFontSize(8.5);doc.setFont('helvetica','normal');
-  const aiLines=doc.splitTextToSize(document.getElementById('ai-text').textContent,172);
-  doc.text(aiLines.slice(0,3),18,aiY+17);
+  doc.text(aiLines,18,aiY+17);
 
-  const tY=aiY+36;
+  const tY=aiY+aiBoxH+6;
   doc.setTextColor(80,80,80);doc.setFontSize(7.5);doc.setFont('helvetica','bold');doc.text('Terms & Conditions',15,tY);
   doc.setFont('helvetica','normal');
   ['• Quotation valid for 15 days from date of issue.',
