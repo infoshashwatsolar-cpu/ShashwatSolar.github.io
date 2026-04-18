@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Shashwat Solar Energy – Mumbai</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green-50: #f0faf2;
+    --green-100: #d4f0db;
+    --green-300: #6dbe84;
+    --green-500: #2e9947;
+    --green-700: #1a6630;
+    --green-900: #0d3319;
+    --gold: #e8a920;
+    --gold-light: #fdf3d7;
+    --off-white: #fafaf7;
+    --charcoal: #1c2214;
+    --mid: #4a5240;
+    --muted: #8a9280;
+    --border: #dde8d8;
+    --font-display: 'Playfair Display', Georgia, serif;
+    --font-body: 'DM Sans', system-ui, sans-serif;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow: 0 2px 20px rgba(14,50,24,0.08);
+    --shadow-md: 0 6px 40px rgba(14,50,24,0.13);
+  }
+
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--font-body); background: var(--off-white); color: var(--charcoal); line-height: 1.6; }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(250,250,247,0.92); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 5%;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 68px;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 10px;
+    font-family: var(--font-display); font-size: 1.25rem; font-weight: 700;
+    color: var(--green-700); text-decoration: none;
+  }
+  .logo-icon {
+    width: 36px; height: 36px; background: var(--green-500); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .logo-icon svg { width: 22px; height: 22px; }
+  nav ul { display: flex; gap: 2rem; list-style: none; }
+  nav ul a { text-decoration: none; font-size: 0.9rem; font-weight: 500; color: var(--mid); transition: color 0.2s; }
+  nav ul a:hover { color: var(--green-500); }
+  .nav-cta {
+    background: var(--green-500); color: #fff; padding: 8px 20px;
+    border-radius: 50px; font-size: 0.88rem; font-weight: 600; text-decoration: none;
+    transition: background 0.2s;
+  }
+  .nav-cta:hover { background: var(--green-700); }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh; padding-top: 68px;
+    display: grid; grid-template-columns: 1fr 1fr; align-items: center;
+    gap: 4rem; padding-left: 7%; padding-right: 5%;
+    background: linear-gradient(135deg, #f0faf2 0%, #fafaf7 55%, #fdf9ee 100%);
+    position: relative; overflow: hidden;
+  }
+  #hero::before {
+    content: ''; position: absolute; right: -80px; top: 10%;
+    width: 520px; height: 520px;
+    background: radial-gradient(circle, rgba(46,153,71,0.08) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--green-100); color: var(--green-700);
+    padding: 5px 14px; border-radius: 50px; font-size: 0.78rem; font-weight: 600;
+    letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 1.2rem;
+  }
+  .hero-badge span { width: 6px; height: 6px; background: var(--green-500); border-radius: 50%; }
+  h1 {
+    font-family: var(--font-display); font-size: clamp(2.4rem, 4.5vw, 3.6rem);
+    font-weight: 700; line-height: 1.15; color: var(--charcoal); margin-bottom: 1.2rem;
+  }
+  h1 em { color: var(--green-500); font-style: normal; }
+  .hero-sub { font-size: 1.05rem; color: var(--mid); max-width: 480px; margin-bottom: 2rem; line-height: 1.75; }
+  .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--green-500); color: #fff; padding: 13px 28px;
+    border-radius: 50px; font-weight: 600; font-size: 0.95rem; text-decoration: none;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .btn-primary:hover { background: var(--green-700); transform: translateY(-1px); }
+  .btn-outline {
+    background: transparent; color: var(--green-700); padding: 13px 28px;
+    border-radius: 50px; font-weight: 600; font-size: 0.95rem; text-decoration: none;
+    border: 1.5px solid var(--green-300); transition: all 0.2s;
+  }
+  .btn-outline:hover { background: var(--green-100); }
+  .hero-stats { display: flex; gap: 2rem; margin-top: 2.5rem; }
+  .stat-item .num { font-family: var(--font-display); font-size: 2rem; font-weight: 700; color: var(--green-700); }
+  .stat-item .lbl { font-size: 0.8rem; color: var(--muted); font-weight: 500; }
+  .hero-visual {
+    display: flex; flex-direction: column; gap: 1rem;
+    position: relative; z-index: 1;
+  }
+  .solar-card-main {
+    background: #fff; border-radius: var(--radius); border: 1px solid var(--border);
+    box-shadow: var(--shadow-md); overflow: hidden;
+  }
+  .solar-panel-svg-wrap {
+    background: linear-gradient(160deg, #1a3a20 0%, #0d2012 100%);
+    padding: 2rem; display: flex; justify-content: center;
+  }
+  .panel-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 4px; width: 200px; }
+  .panel-cell {
+    aspect-ratio: 1; background: #0a3020; border: 1px solid #1e5535;
+    border-radius: 2px; position: relative; overflow: hidden;
+  }
+  .panel-cell::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(100,200,130,0.15) 0%, transparent 60%);
+  }
+  .card-info { padding: 1.2rem 1.4rem; }
+  .card-info h3 { font-size: 0.95rem; font-weight: 600; color: var(--charcoal); }
+  .card-info p { font-size: 0.82rem; color: var(--muted); margin-top: 2px; }
+  .energy-bar { margin-top: 10px; background: var(--green-50); border-radius: 50px; height: 8px; overflow: hidden; }
+  .energy-fill { height: 100%; width: 74%; background: linear-gradient(90deg, var(--green-300), var(--green-500)); border-radius: 50px; }
+  .mini-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .mini-card {
+    background: #fff; border-radius: var(--radius-sm); border: 1px solid var(--border);
+    padding: 1rem 1.1rem; box-shadow: var(--shadow);
+  }
+  .mini-card .icon { font-size: 1.4rem; margin-bottom: 6px; }
+  .mini-card .val { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; color: var(--green-700); }
+  .mini-card .desc { font-size: 0.75rem; color: var(--muted); }
+
+  /* ── SECTIONS ── */
+  section { padding: 5rem 7%; }
+  .section-label {
+    display: inline-block; font-size: 0.75rem; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--green-500); margin-bottom: 0.75rem;
+  }
+  h2 { font-family: var(--font-display); font-size: clamp(1.8rem, 3vw, 2.6rem); font-weight: 700; line-height: 1.2; }
+  .section-intro { font-size: 1.05rem; color: var(--mid); max-width: 560px; margin-top: 0.8rem; line-height: 1.75; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2rem; }
+
+  /* ── PRODUCTS ── */
+  #products { background: #fff; }
+  .product-card {
+    border: 1px solid var(--border); border-radius: var(--radius);
+    overflow: hidden; transition: box-shadow 0.25s, transform 0.2s;
+    background: var(--off-white);
+  }
+  .product-card:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); }
+  .product-img {
+    height: 180px; display: flex; align-items: center; justify-content: center;
+    font-size: 3.5rem;
+  }
+  .product-img.green-bg { background: linear-gradient(135deg, var(--green-50), var(--green-100)); }
+  .product-img.gold-bg { background: linear-gradient(135deg, var(--gold-light), #fde9a0); }
+  .product-img.sky-bg { background: linear-gradient(135deg, #e8f4fd, #c5e4fa); }
+  .product-img.warm-bg { background: linear-gradient(135deg, #fdf3ed, #fce5d1); }
+  .product-body { padding: 1.2rem 1.3rem; }
+  .product-tag {
+    display: inline-block; background: var(--green-100); color: var(--green-700);
+    font-size: 0.7rem; font-weight: 700; padding: 3px 10px; border-radius: 50px;
+    text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;
+  }
+  .product-body h3 { font-weight: 600; font-size: 1rem; color: var(--charcoal); }
+  .product-body p { font-size: 0.85rem; color: var(--muted); margin-top: 5px; line-height: 1.6; }
+  .product-footer {
+    padding: 0.9rem 1.3rem; border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .price { font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; color: var(--green-700); }
+  .enquire-btn {
+    background: var(--green-50); color: var(--green-700); border: 1px solid var(--green-300);
+    padding: 6px 16px; border-radius: 50px; font-size: 0.8rem; font-weight: 600;
+    cursor: pointer; text-decoration: none; transition: all 0.2s;
+  }
+  .enquire-btn:hover { background: var(--green-500); color: #fff; border-color: var(--green-500); }
+
+  /* ── SERVICES ── */
+  #services { background: var(--green-900); color: #fff; }
+  #services h2 { color: #fff; }
+  #services .section-label { color: var(--green-300); }
+  #services .section-intro { color: rgba(255,255,255,0.65); }
+  .service-card {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: var(--radius); padding: 1.8rem;
+    transition: background 0.25s;
+  }
+  .service-card:hover { background: rgba(255,255,255,0.1); }
+  .service-icon {
+    width: 52px; height: 52px; background: rgba(46,153,71,0.25);
+    border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem; margin-bottom: 1rem;
+  }
+  .service-card h3 { font-size: 1.05rem; font-weight: 600; color: #fff; margin-bottom: 0.5rem; }
+  .service-card p { font-size: 0.87rem; color: rgba(255,255,255,0.6); line-height: 1.7; }
+  .service-steps {
+    margin-top: 1rem; display: flex; flex-direction: column; gap: 6px;
+  }
+  .step {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 0.8rem; color: rgba(255,255,255,0.55);
+  }
+  .step::before {
+    content: ''; width: 6px; height: 6px; background: var(--green-300);
+    border-radius: 50%; flex-shrink: 0;
+  }
+
+  /* ── WHY US ── */
+  #why { background: var(--green-50); }
+  .why-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+  .why-left h2 { margin-bottom: 1rem; }
+  .why-left p { color: var(--mid); font-size: 1rem; line-height: 1.8; }
+  .why-pills { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 1.5rem; }
+  .pill {
+    background: #fff; border: 1px solid var(--border); border-radius: 50px;
+    padding: 6px 16px; font-size: 0.83rem; font-weight: 500; color: var(--green-700);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .pill::before { content: '✓'; color: var(--green-500); font-weight: 700; }
+  .why-right { display: flex; flex-direction: column; gap: 1.2rem; }
+  .why-item {
+    background: #fff; border-radius: var(--radius-sm); border: 1px solid var(--border);
+    padding: 1.2rem 1.4rem; display: flex; gap: 1rem; align-items: flex-start;
+    box-shadow: var(--shadow);
+  }
+  .why-num {
+    width: 38px; height: 38px; background: var(--green-500); color: #fff;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.95rem; flex-shrink: 0;
+  }
+  .why-item h4 { font-weight: 600; font-size: 0.95rem; margin-bottom: 3px; }
+  .why-item p { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+
+  /* ── ABOUT ── */
+  #about { background: #fff; }
+  .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+  .about-visual {
+    position: relative;
+  }
+  .about-img-block {
+    background: linear-gradient(135deg, var(--green-700) 0%, var(--green-900) 100%);
+    border-radius: var(--radius); padding: 3rem 2.5rem; color: #fff;
+    position: relative; overflow: hidden;
+  }
+  .about-img-block::after {
+    content: '☀'; position: absolute; right: -20px; top: -20px;
+    font-size: 9rem; opacity: 0.07; line-height: 1;
+  }
+  .about-img-block h3 { font-family: var(--font-display); font-size: 2rem; margin-bottom: 0.5rem; }
+  .about-img-block p { color: rgba(255,255,255,0.7); font-size: 0.92rem; }
+  .about-stat-row {
+    display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; margin-top: 1.5rem;
+  }
+  .a-stat { text-align: center; }
+  .a-stat .n { font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; color: var(--gold); }
+  .a-stat .l { font-size: 0.72rem; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.06em; }
+  .about-text p { color: var(--mid); font-size: 1rem; line-height: 1.85; margin-bottom: 1rem; }
+  .founder-card {
+    background: var(--green-50); border-radius: var(--radius-sm); border: 1px solid var(--border);
+    padding: 1.2rem 1.4rem; display: flex; gap: 1rem; align-items: center; margin-top: 1.5rem;
+  }
+  .founder-avatar {
+    width: 52px; height: 52px; border-radius: 50%; background: var(--green-500);
+    display: flex; align-items: center; justify-content: center; color: #fff;
+    font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; flex-shrink: 0;
+  }
+  .founder-info h4 { font-weight: 600; font-size: 0.95rem; }
+  .founder-info p { font-size: 0.82rem; color: var(--muted); }
+
+  /* ── CONTACT ── */
+  #contact { background: var(--off-white); }
+  .contact-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 3.5rem; }
+  .contact-info h2 { margin-bottom: 1rem; }
+  .contact-info p { color: var(--mid); font-size: 0.97rem; line-height: 1.8; }
+  .contact-details { margin-top: 2rem; display: flex; flex-direction: column; gap: 1.1rem; }
+  .contact-item { display: flex; gap: 12px; align-items: flex-start; }
+  .c-icon {
+    width: 42px; height: 42px; background: var(--green-100); border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;
+  }
+  .c-label { font-size: 0.78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .c-value { font-size: 0.93rem; color: var(--charcoal); font-weight: 500; }
+  form { display: flex; flex-direction: column; gap: 1rem; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  label { font-size: 0.8rem; font-weight: 600; color: var(--mid); }
+  input, select, textarea {
+    padding: 11px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    font-family: var(--font-body); font-size: 0.93rem; background: #fff; color: var(--charcoal);
+    transition: border-color 0.2s; outline: none; resize: vertical;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--green-500); }
+  .form-submit {
+    background: var(--green-500); color: #fff; border: none; padding: 13px 30px;
+    border-radius: 50px; font-size: 0.95rem; font-weight: 600; cursor: pointer;
+    transition: background 0.2s, transform 0.15s; align-self: flex-start;
+  }
+  .form-submit:hover { background: var(--green-700); transform: translateY(-1px); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--charcoal); color: rgba(255,255,255,0.75);
+    padding: 3rem 7%;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;
+  }
+  .footer-brand { font-family: var(--font-display); font-size: 1.2rem; color: #fff; }
+  .footer-brand span { color: var(--green-300); }
+  footer p { font-size: 0.83rem; }
+  .footer-links { display: flex; gap: 1.5rem; }
+  .footer-links a { color: rgba(255,255,255,0.55); text-decoration: none; font-size: 0.83rem; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--green-300); }
+
+  /* ── HAMBURGER ── */
+  .hamburger {
+    display: none; flex-direction: column; justify-content: center; gap: 5px;
+    width: 40px; height: 40px; cursor: pointer; background: none; border: none; padding: 4px;
+  }
+  .hamburger span {
+    display: block; height: 2px; background: var(--charcoal);
+    border-radius: 2px; transition: all 0.3s;
+  }
+  .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger.open span:nth-child(2) { opacity: 0; }
+  .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  .mobile-menu {
+    display: none; position: fixed; top: 68px; left: 0; right: 0; z-index: 99;
+    background: rgba(250,250,247,0.98); backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    flex-direction: column; padding: 1rem 5% 1.5rem;
+    gap: 0;
+  }
+  .mobile-menu.open { display: flex; }
+  .mobile-menu a {
+    text-decoration: none; font-size: 1.05rem; font-weight: 500; color: var(--charcoal);
+    padding: 14px 0; border-bottom: 1px solid var(--border);
+    transition: color 0.2s;
+  }
+  .mobile-menu a:last-child { border-bottom: none; }
+  .mobile-menu a:hover { color: var(--green-500); }
+  .mobile-menu .m-cta {
+    margin-top: 1rem; background: var(--green-500); color: #fff;
+    text-align: center; padding: 14px; border-radius: 50px;
+    font-weight: 600; border-bottom: none;
+  }
+
+  /* ── FLOATING CTA ── */
+  .float-cta {
+    display: none;
+    position: fixed; bottom: 20px; right: 20px; z-index: 200;
+    background: var(--green-500); color: #fff;
+    padding: 14px 22px; border-radius: 50px;
+    font-weight: 600; font-size: 0.95rem; text-decoration: none;
+    box-shadow: 0 4px 20px rgba(46,153,71,0.4);
+    align-items: center; gap: 8px;
+  }
+
+  /* ── TABLET (900px) ── */
+  @media (max-width: 900px) {
+    nav ul, .nav-cta { display: none; }
+    .hamburger { display: flex; }
+
+    #hero {
+      grid-template-columns: 1fr;
+      padding: 6rem 5% 3rem;
+      min-height: auto;
+    }
+    .hero-visual { display: none; }
+    .hero-stats { gap: 1.5rem; }
+
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .why-grid, .about-grid, .contact-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .form-row { grid-template-columns: 1fr 1fr; }
+    section { padding: 3.5rem 5%; }
+
+    .about-visual { order: -1; }
+  }
+
+  /* ── MOBILE (600px) ── */
+  @media (max-width: 600px) {
+    nav { padding: 0 4%; height: 60px; }
+    .logo { font-size: 1.05rem; }
+    .logo-icon { width: 30px; height: 30px; }
+    .logo-icon svg { width: 18px; height: 18px; }
+    .mobile-menu { top: 60px; }
+
+    #hero { padding: 5rem 4% 2.5rem; }
+    h1 { font-size: clamp(1.9rem, 7.5vw, 2.6rem); }
+    .hero-sub { font-size: 0.97rem; }
+    .hero-btns { flex-direction: column; }
+    .btn-primary, .btn-outline { text-align: center; padding: 14px 24px; font-size: 1rem; }
+    .hero-stats { gap: 1rem; }
+    .stat-item .num { font-size: 1.6rem; }
+
+    section { padding: 2.8rem 4%; }
+    h2 { font-size: clamp(1.5rem, 6vw, 2rem); }
+    .section-intro { font-size: 0.95rem; }
+
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; gap: 1rem; }
+    .form-row { grid-template-columns: 1fr; }
+
+    input, select, textarea { font-size: 1rem; padding: 13px 14px; }
+    .form-submit { width: 100%; text-align: center; padding: 15px; font-size: 1rem; }
+
+    .why-pills { gap: 8px; }
+    .pill { font-size: 0.78rem; padding: 5px 13px; }
+
+    .about-stat-row { grid-template-columns: repeat(3,1fr); gap: 0.5rem; }
+    .a-stat .n { font-size: 1.4rem; }
+
+    footer {
+      flex-direction: column; text-align: center; padding: 2rem 4%;
+      gap: 1.2rem;
+    }
+    .footer-links { flex-wrap: wrap; justify-content: center; gap: 1rem; }
+
+    .float-cta { display: flex; }
+
+    .product-img { height: 140px; font-size: 3rem; }
+
+    .service-card { padding: 1.4rem; }
+    .service-icon { width: 44px; height: 44px; font-size: 1.4rem; }
+
+    .why-item { padding: 1rem 1.1rem; }
+    .why-num { width: 34px; height: 34px; font-size: 0.85rem; flex-shrink: 0; }
+
+    .contact-grid { gap: 1.5rem; }
+    form { padding: 1.4rem !important; }
+  }
+
+  /* ── VERY SMALL (380px) ── */
+  @media (max-width: 380px) {
+    h1 { font-size: 1.75rem; }
+    .hero-stats { flex-wrap: wrap; gap: 0.8rem; }
+    .stat-item { min-width: 80px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+      </svg>
+    </div>
+    Shashwat Solar
+  </a>
+  <ul>
+    <li><a href="#products">Products</a></li>
+    <li><a href="learn.html">Learn Solar</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#why">Why Us</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="solar-quote.html" style="color:var(--green-500);font-weight:600;">⚡ Instant Quote</a></li>
+  </ul>
+  <a href="solar-quote.html" class="nav-cta">Get a Quote</a>
+  <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#products" onclick="closeMenu()">Products</a>
+  <a href="learn.html" onclick="closeMenu()">Learn Solar</a>
+  <a href="#services" onclick="closeMenu()">Services</a>
+  <a href="#why" onclick="closeMenu()">Why Us</a>
+  <a href="#about" onclick="closeMenu()">About</a>
+  <a href="#contact" onclick="closeMenu()">Contact</a>
+  <a href="solar-quote.html" class="m-cta">⚡ Get Instant AI Quote →</a>
+</div>
+
+<!-- FLOATING CTA (mobile only) -->
+<a href="solar-quote.html" class="float-cta">⚡ Instant Quote</a>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-text">
+    <div class="hero-badge"><span></span> Mumbai's Trusted Solar Retailer</div>
+    <h1>Power Your Future with <em>Clean Solar</em> Energy</h1>
+    <p class="hero-sub">Shashwat Solar Energy brings premium solar panels, inverters, and smart energy technologies to homes and businesses across Mumbai — with expert guidance at every step.</p>
+    <div class="hero-btns">
+      <a href="#products" class="btn-primary">Explore Products</a>
+      <a href="solar-quote.html" class="btn-outline">⚡ Get Instant Quote</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item"><div class="num">500+</div><div class="lbl">Installations</div></div>
+      <div class="stat-item"><div class="num">10+</div><div class="lbl">Years Expertise</div></div>
+      <div class="stat-item"><div class="num">5★</div><div class="lbl">Customer Rating</div></div>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="solar-card-main">
+      <div class="solar-panel-svg-wrap">
+        <div class="panel-grid">
+          <div class="panel-cell"></div><div class="panel-cell"></div><div class="panel-cell"></div><div class="panel-cell"></div>
+          <div class="panel-cell"></div><div class="panel-cell"></div><div class="panel-cell"></div><div class="panel-cell"></div>
+          <div class="panel-cell"></div><div class="panel-cell"></div><div class="panel-cell"></div><div class="panel-cell"></div>
+        </div>
+      </div>
+      <div class="card-info">
+        <h3>System Output Today</h3>
+        <p>Rooftop 6kW Monocrystalline Array</p>
+        <div class="energy-bar"><div class="energy-fill"></div></div>
+        <p style="margin-top:5px;font-size:0.8rem;color:var(--green-500);font-weight:600;">74% — 4.4 kWh generated</p>
+      </div>
+    </div>
+    <div class="mini-cards">
+      <div class="mini-card">
+        <div class="icon">⚡</div>
+        <div class="val">₹0</div>
+        <div class="desc">Electricity bill this month</div>
+      </div>
+      <div class="mini-card">
+        <div class="icon">🌿</div>
+        <div class="val">2.1T</div>
+        <div class="desc">CO₂ saved annually</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCTS -->
+<section id="products">
+  <div style="margin-bottom:2.5rem;">
+    <span class="section-label">Our Products</span>
+    <h2>Solar Technologies for Every Need</h2>
+    <p class="section-intro">We retail industry-leading solar products suited to Mumbai's climate — from residential rooftops to large commercial setups.</p>
+  </div>
+  <div class="grid-4">
+    <div class="product-card">
+      <div class="product-img green-bg">🌞</div>
+      <div class="product-body">
+        <span class="product-tag">Best Seller</span>
+        <h3>Monocrystalline Solar Panels</h3>
+        <p>High-efficiency panels (20–23%) for maximum power from limited rooftop space.</p>
+      </div>
+      <div class="product-footer">
+        <span class="price">₹18,000/unit</span>
+        <a href="#contact" class="enquire-btn">Enquire</a>
+      </div>
+    </div>
+    <div class="product-card">
+      <div class="product-img gold-bg">🔋</div>
+      <div class="product-body">
+        <span class="product-tag">Popular</span>
+        <h3>Lithium Battery Storage</h3>
+        <p>Store excess solar energy for use during evenings and grid outages.</p>
+      </div>
+      <div class="product-footer">
+        <span class="price">₹45,000/unit</span>
+        <a href="#contact" class="enquire-btn">Enquire</a>
+      </div>
+    </div>
+    <div class="product-card">
+      <div class="product-img sky-bg">⚙️</div>
+      <div class="product-body">
+        <span class="product-tag">Essential</span>
+        <h3>Grid-Tie Inverters</h3>
+        <p>Seamlessly convert solar DC to AC power and feed surplus into the grid.</p>
+      </div>
+      <div class="product-footer">
+        <span class="price">₹12,000/unit</span>
+        <a href="#contact" class="enquire-btn">Enquire</a>
+      </div>
+    </div>
+    <div class="product-card">
+      <div class="product-img warm-bg">📡</div>
+      <div class="product-body">
+        <span class="product-tag">Smart</span>
+        <h3>Solar Monitoring Systems</h3>
+        <p>Real-time monitoring of energy production and consumption on your phone.</p>
+      </div>
+      <div class="product-footer">
+        <span class="price">₹6,500/unit</span>
+        <a href="#contact" class="enquire-btn">Enquire</a>
+      </div>
+    </div>
+  </div>
+  <p style="margin-top:2rem;font-size:0.88rem;color:var(--muted);text-align:center;">
+    Also available: Polycrystalline panels, Off-grid inverters, Solar water heaters, EV charging accessories — <a href="#contact" style="color:var(--green-500);font-weight:600;">ask us for the full catalogue →</a>
+  </p>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div style="margin-bottom:2.5rem;">
+    <span class="section-label">Our Services</span>
+    <h2>End-to-End Solar Solutions</h2>
+    <p class="section-intro">From feasibility assessment to post-installation support — we make going solar effortless.</p>
+  </div>
+  <div class="grid-3">
+    <div class="service-card">
+      <div class="service-icon">🏠</div>
+      <h3>Residential Solar Installation</h3>
+      <p>Custom rooftop solar systems for apartments and independent homes across Mumbai.</p>
+      <div class="service-steps">
+        <div class="step">Free site survey & feasibility check</div>
+        <div class="step">System design & proposal</div>
+        <div class="step">Professional installation</div>
+        <div class="step">DISCOM grid connection support</div>
+      </div>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">🏭</div>
+      <h3>Commercial & Industrial Solar</h3>
+      <p>Large-scale solar systems for offices, factories, warehouses and commercial complexes.</p>
+      <div class="service-steps">
+        <div class="step">Energy audit & load analysis</div>
+        <div class="step">ROI & subsidy calculation</div>
+        <div class="step">Turnkey installation</div>
+        <div class="step">Net metering registration</div>
+      </div>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">🔧</div>
+      <h3>AMC & Maintenance</h3>
+      <p>Annual maintenance contracts to keep your solar system performing at peak efficiency.</p>
+      <div class="service-steps">
+        <div class="step">Bi-annual panel cleaning</div>
+        <div class="step">Inverter & wiring inspection</div>
+        <div class="step">Performance reporting</div>
+        <div class="step">Priority breakdown support</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- AI QUOTE BANNER -->
+<section style="background:linear-gradient(135deg,#0d3319 0%,#1a6630 60%,#2e9947 100%);padding:3.5rem 7%;text-align:center;">
+  <div style="max-width:680px;margin:0 auto;">
+    <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.12);color:#9fe1cb;padding:5px 16px;border-radius:50px;font-size:0.78rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:1.2rem;">
+      <span style="width:7px;height:7px;background:#6dbe84;border-radius:50%;display:inline-block;"></span> New Feature
+    </div>
+    <h2 style="font-family:'Playfair Display',Georgia,serif;color:#fff;font-size:clamp(1.7rem,3.5vw,2.4rem);margin-bottom:1rem;line-height:1.2;">Get Your Solar Quote in <em style="color:#e8a920;font-style:normal;">60 Seconds</em></h2>
+    <p style="color:rgba(255,255,255,0.7);font-size:1rem;line-height:1.75;margin-bottom:1.8rem;">Upload your electricity bill or type in your monthly amount — our AI instantly calculates the right system size, applies PM Surya Ghar subsidies, and generates a detailed PDF quote on our letterhead.</p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem;">
+      <a href="solar-quote.html" style="background:#e8a920;color:#1c2214;padding:14px 32px;border-radius:50px;font-weight:700;font-size:1rem;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:opacity .2s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+        ⚡ Generate My Free Quote
+      </a>
+      <a href="#contact" style="background:transparent;color:#fff;padding:14px 28px;border-radius:50px;font-weight:600;font-size:0.95rem;text-decoration:none;border:1.5px solid rgba(255,255,255,0.35);transition:border-color .2s;" onmouseover="this.style.borderColor='rgba(255,255,255,0.7)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.35)'">
+        Talk to Our Team
+      </a>
+    </div>
+    <div style="display:flex;justify-content:center;gap:2rem;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:7px;color:rgba(255,255,255,0.6);font-size:0.82rem;"><span style="color:#6dbe84;font-size:1rem;">✓</span> Upload bill PDF or image</div>
+      <div style="display:flex;align-items:center;gap:7px;color:rgba(255,255,255,0.6);font-size:0.82rem;"><span style="color:#6dbe84;font-size:1rem;">✓</span> PM Surya Ghar subsidy applied</div>
+      <div style="display:flex;align-items:center;gap:7px;color:rgba(255,255,255,0.6);font-size:0.82rem;"><span style="color:#6dbe84;font-size:1rem;">✓</span> Downloadable PDF on letterhead</div>
+      <div style="display:flex;align-items:center;gap:7px;color:rgba(255,255,255,0.6);font-size:0.82rem;"><span style="color:#6dbe84;font-size:1rem;">✓</span> 25-year ROI breakdown</div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY US -->
+<section id="why">
+  <div class="why-grid">
+    <div class="why-left">
+      <span class="section-label">Why Choose Us</span>
+      <h2>Mumbai's Solar Experts — Trusted by Hundreds</h2>
+      <p>We're a family-founded business with deep roots in Mumbai's energy landscape. We don't just sell solar — we help you make the smartest investment for your property and the planet.</p>
+      <div class="why-pills">
+        <span class="pill">Government Subsidy Assistance</span>
+        <span class="pill">MNRE Empanelled Products</span>
+        <span class="pill">25-Year Panel Warranty</span>
+        <span class="pill">Local Mumbai Team</span>
+        <span class="pill">No Hidden Costs</span>
+        <span class="pill">EMI Options Available</span>
+      </div>
+    </div>
+    <div class="why-right">
+      <div class="why-item">
+        <div class="why-num">1</div>
+        <div>
+          <h4>Free Consultation & Site Survey</h4>
+          <p>Our engineers visit your location, assess your roof and energy needs, and provide a detailed, no-obligation proposal.</p>
+        </div>
+      </div>
+      <div class="why-item">
+        <div class="why-num">2</div>
+        <div>
+          <h4>Premium Brands at Honest Prices</h4>
+          <p>We stock top brands like Waaree, Adani Solar, Havells, and Luminous — with transparent pricing and no upselling.</p>
+        </div>
+      </div>
+      <div class="why-item">
+        <div class="why-num">3</div>
+        <div>
+          <h4>Subsidy & Net Metering Support</h4>
+          <p>We handle all paperwork for PM Surya Ghar subsidies and MSEDCL net metering connections on your behalf.</p>
+        </div>
+      </div>
+      <div class="why-item">
+        <div class="why-num">4</div>
+        <div>
+          <h4>After-Sales Service You Can Count On</h4>
+          <p>Our service team is based in Mumbai. We're just a call away for any maintenance or performance queries.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-grid">
+    <div class="about-visual">
+      <div class="about-img-block">
+        <h3>Shashwat Solar Energy</h3>
+        <p>Established in Mumbai — committed to making clean energy accessible to every Indian household and business.</p>
+        <div class="about-stat-row">
+          <div class="a-stat"><div class="n">500+</div><div class="l">Installations</div></div>
+          <div class="a-stat"><div class="n">8 MW</div><div class="l">Capacity Sold</div></div>
+          <div class="a-stat"><div class="n">10+</div><div class="l">Years in Solar</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="about-text">
+      <span class="section-label">About Us</span>
+      <h2 style="margin-bottom:1rem;">A Family Business Powering Mumbai's Solar Future</h2>
+      <p>Shashwat Solar Energy was founded with a simple belief — that every home and business in Mumbai deserves access to affordable, reliable, and clean solar power. We started as a small team of solar enthusiasts and have grown into one of Mumbai's trusted names in solar retail and installation.</p>
+      <p>Our team combines technical expertise with an honest, customer-first approach. We take the time to understand each client's unique needs — whether it's a 1 kW system for a Mumbai apartment or a 100 kW plant for a factory — and deliver solutions that truly work.</p>
+      <div class="founder-card">
+        <div class="founder-avatar">SS</div>
+        <div class="founder-info">
+          <h4>Founded by the Shashwat Family</h4>
+          <p>Mumbai, Maharashtra — Serving clients across the MMR region</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-grid">
+    <div class="contact-info">
+      <span class="section-label">Contact Us</span>
+      <h2>Let's Find the Right Solar Solution for You</h2>
+      <p>Get in touch for a free consultation, a product enquiry, or to schedule a site visit. Our team typically responds within a few hours.</p>
+      <div class="contact-details">
+        <div class="contact-item">
+          <div class="c-icon">📍</div>
+          <div>
+            <div class="c-label">Address</div>
+            <div class="c-value">Mumbai, Maharashtra, India</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="c-icon">📞</div>
+          <div>
+            <div class="c-label">Phone</div>
+            <div class="c-value">+91 XXXXX XXXXX</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="c-icon">📧</div>
+          <div>
+            <div class="c-label">Email</div>
+            <div class="c-value">info@shashwatsolar.in</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="c-icon">⏰</div>
+          <div>
+            <div class="c-label">Working Hours</div>
+            <div class="c-value">Mon – Sat, 9:00 AM – 7:00 PM</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <a href="solar-quote.html" style="display:block;background:linear-gradient(135deg,#0d3319,#1a6630);border-radius:12px;padding:1.4rem 1.6rem;text-decoration:none;margin-bottom:1.2rem;position:relative;overflow:hidden;">
+        <div style="position:absolute;right:-10px;top:-10px;font-size:6rem;opacity:0.07;line-height:1;">⚡</div>
+        <div style="font-size:0.72rem;font-weight:700;color:#6dbe84;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">Faster Option</div>
+        <div style="font-family:'Playfair Display',Georgia,serif;font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:4px;">Get an Instant AI-Generated Quote</div>
+        <div style="font-size:0.83rem;color:rgba(255,255,255,0.65);margin-bottom:10px;">Upload your electricity bill — get a full cost breakdown + PDF in under a minute.</div>
+        <span style="display:inline-flex;align-items:center;gap:6px;background:#e8a920;color:#1c2214;padding:7px 18px;border-radius:50px;font-size:0.83rem;font-weight:700;">⚡ Try Instant Quote →</span>
+      </a>
+      <form onsubmit="handleSubmit(event)" style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:2rem;box-shadow:var(--shadow);">
+        <h3 style="font-family:var(--font-display);font-size:1.2rem;margin-bottom:1.2rem;color:var(--charcoal);">Request a Free Quote</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">Your Name</label>
+            <input type="text" id="name" placeholder="Raj Sharma" required />
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" placeholder="+91 98XXX XXXXX" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" placeholder="you@example.com" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="type">Installation Type</label>
+            <select id="type">
+              <option value="">Select type…</option>
+              <option>Residential – Apartment</option>
+              <option>Residential – Bungalow</option>
+              <option>Commercial Office</option>
+              <option>Industrial / Factory</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="capacity">Approx. Capacity Needed</label>
+            <select id="capacity">
+              <option value="">Select…</option>
+              <option>1–3 kW (Small Home)</option>
+              <option>3–6 kW (Medium Home)</option>
+              <option>6–10 kW (Large Home)</option>
+              <option>10–50 kW (Commercial)</option>
+              <option>50+ kW (Industrial)</option>
+              <option>Not Sure — Need Guidance</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="msg">Message / Requirements</label>
+          <textarea id="msg" rows="3" placeholder="Tell us about your property, monthly electricity bill, or any specific questions…"></textarea>
+        </div>
+        <button type="submit" class="form-submit">Send Enquiry →</button>
+        <p style="font-size:0.78rem;color:var(--muted);margin-top:10px;">We'll get back to you within a few hours on business days.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="footer-brand">Shashwat <span>Solar Energy</span></div>
+    <p style="margin-top:4px;">Mumbai, Maharashtra · Making India Solar-Powered</p>
+  </div>
+  <div class="footer-links">
+    <a href="#products">Products</a>
+    <a href="#services">Services</a>
+    <a href="#why">Why Us</a>
+    <a href="#about">About</a>
+    <a href="#contact">Contact</a>
+  </div>
+  <p style="font-size:0.78rem;">© 2025 Shashwat Solar Energy. All rights reserved.</p>
+</footer>
+
+<script>
+function handleSubmit(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('.form-submit');
+  btn.textContent = '✓ Enquiry Sent!';
+  btn.style.background = '#1a6630';
+  btn.disabled = true;
+  setTimeout(() => {
+    btn.textContent = 'Send Enquiry →';
+    btn.style.background = '';
+    btn.disabled = false;
+    e.target.reset();
+  }, 3500);
+}
+
+const hamburger = document.getElementById('hamburger');
+const mobileMenu = document.getElementById('mobileMenu');
+
+hamburger.addEventListener('click', () => {
+  hamburger.classList.toggle('open');
+  mobileMenu.classList.toggle('open');
+});
+
+function closeMenu() {
+  hamburger.classList.remove('open');
+  mobileMenu.classList.remove('open');
+}
+
+document.addEventListener('click', (e) => {
+  if (!hamburger.contains(e.target) && !mobileMenu.contains(e.target)) {
+    closeMenu();
+  }
+});
+</script>
+</body>
+</html>

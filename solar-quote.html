@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Solar Quote Generator – Shashwat Solar Energy</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g50:#f0faf2;--g100:#d4f0db;--g300:#6dbe84;--g500:#2e9947;--g700:#1a6630;--g900:#0d3319;
+  --gold:#e8a920;--gold-light:#fdf3d7;
+  --off:#fafaf7;--ch:#1c2214;--mid:#4a5240;--muted:#8a9280;--border:#dde8d8;
+  --fd:'Playfair Display',Georgia,serif;--fb:'DM Sans',system-ui,sans-serif;
+  --r:12px;--rs:8px;--sh:0 2px 20px rgba(14,50,24,.08);--shm:0 6px 40px rgba(14,50,24,.13)
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--fb);background:var(--off);color:var(--ch);line-height:1.6;min-height:100vh}
+
+/* PAGE HEADER */
+.page-header{background:var(--g900);color:#fff;padding:1.2rem 5%;display:flex;align-items:center;gap:12px}
+.ph-icon{width:38px;height:38px;background:var(--g500);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ph-icon svg{width:22px;height:22px}
+.ph-title{font-family:var(--fd);font-size:1.2rem;font-weight:700;color:#fff}
+.ph-sub{font-size:0.8rem;color:rgba(255,255,255,.6);margin-top:1px}
+
+/* MAIN LAYOUT */
+.container{max-width:900px;margin:0 auto;padding:2rem 5%}
+
+/* STEP INDICATOR */
+.steps{display:flex;gap:0;margin-bottom:2.5rem;border-radius:var(--r);overflow:hidden;border:1px solid var(--border)}
+.step-item{flex:1;padding:12px 16px;text-align:center;background:#fff;font-size:0.82rem;font-weight:600;color:var(--muted);border-right:1px solid var(--border);position:relative;transition:all .2s}
+.step-item:last-child{border-right:none}
+.step-item.active{background:var(--g500);color:#fff}
+.step-item.done{background:var(--g50);color:var(--g700)}
+.step-num{display:block;font-size:1rem;font-weight:700;margin-bottom:2px}
+
+/* FORM CARD */
+.card{background:#fff;border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--sh);padding:2rem;margin-bottom:1.5rem}
+.card-title{font-family:var(--fd);font-size:1.3rem;font-weight:700;color:var(--ch);margin-bottom:0.3rem}
+.card-sub{font-size:0.9rem;color:var(--muted);margin-bottom:1.5rem}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-group.full{grid-column:1/-1}
+label{font-size:0.8rem;font-weight:600;color:var(--mid);letter-spacing:0.02em}
+input,select,textarea{
+  padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--rs);
+  font-family:var(--fb);font-size:0.95rem;background:#fff;color:var(--ch);
+  transition:border-color .2s;outline:none
+}
+input:focus,select:focus,textarea:focus{border-color:var(--g500)}
+
+.bill-input-wrap{position:relative}
+.bill-prefix{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-weight:600;color:var(--muted);font-size:1rem;pointer-events:none}
+.bill-input-wrap input{padding-left:32px}
+
+/* BUTTONS */
+.btn-primary{background:var(--g500);color:#fff;border:none;padding:13px 32px;border-radius:50px;font-family:var(--fb);font-size:0.97rem;font-weight:600;cursor:pointer;transition:background .2s,transform .15s;display:inline-flex;align-items:center;gap:8px}
+.btn-primary:hover{background:var(--g700);transform:translateY(-1px)}
+.btn-primary:disabled{background:var(--muted);cursor:not-allowed;transform:none}
+.btn-outline{background:transparent;color:var(--g700);border:1.5px solid var(--g300);padding:11px 24px;border-radius:50px;font-family:var(--fb);font-size:0.93rem;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-outline:hover{background:var(--g50)}
+
+/* LOADING */
+.loading-wrap{text-align:center;padding:3rem 2rem}
+.spinner{width:48px;height:48px;border:3px solid var(--g100);border-top-color:var(--g500);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 1.2rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:0.95rem;color:var(--mid)}
+.loading-steps{display:flex;flex-direction:column;gap:8px;margin-top:1.2rem;text-align:left;max-width:300px;margin-left:auto;margin-right:auto}
+.ls-item{display:flex;align-items:center;gap:10px;font-size:0.83rem;color:var(--muted)}
+.ls-dot{width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;transition:background .3s}
+.ls-dot.active{background:var(--g500)}
+.ls-dot.done{background:var(--g300)}
+
+/* QUOTE RESULT */
+.quote-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem}
+.qs-card{background:var(--g50);border-radius:var(--rs);border:1px solid var(--g100);padding:1rem 1.2rem}
+.qs-label{font-size:0.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px}
+.qs-val{font-family:var(--fd);font-size:1.5rem;font-weight:700;color:var(--g700)}
+.qs-sub{font-size:0.75rem;color:var(--muted);margin-top:2px}
+
+.quote-table{width:100%;border-collapse:collapse;font-size:0.88rem;margin-bottom:1.5rem}
+.quote-table th{background:var(--g900);color:#fff;padding:10px 14px;text-align:left;font-weight:600;font-size:0.8rem}
+.quote-table td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top}
+.quote-table tr:last-child td{border-bottom:none}
+.quote-table tr:nth-child(even) td{background:var(--g50)}
+.quote-table .total-row td{background:var(--g100);font-weight:700;color:var(--g900);font-size:0.95rem}
+.quote-table .savings-row td{background:var(--gold-light);color:#7a5200;font-weight:600}
+
+.subsidy-badge{display:inline-flex;align-items:center;gap:6px;background:#fdf3d7;color:#7a5200;border:1px solid #f0d060;padding:6px 14px;border-radius:50px;font-size:0.8rem;font-weight:600;margin-bottom:1rem}
+
+.action-row{display:flex;gap:1rem;align-items:center;flex-wrap:wrap;margin-top:1.5rem}
+.pdf-btn{background:var(--g700);color:#fff;border:none;padding:13px 28px;border-radius:50px;font-family:var(--fb);font-size:0.95rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:background .2s}
+.pdf-btn:hover{background:var(--g900)}
+.pdf-btn svg{width:18px;height:18px;flex-shrink:0}
+
+/* ERROR */
+.error-box{background:#fff5f5;border:1px solid #f5c6c6;border-radius:var(--rs);padding:1rem 1.2rem;color:#8b2020;font-size:0.88rem;margin-bottom:1rem}
+
+/* BILL UPLOAD */
+.upload-zone{border:2px dashed var(--g300);border-radius:var(--r);padding:1.8rem 1.2rem;text-align:center;cursor:pointer;transition:all .2s;background:var(--g50);position:relative}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--g500);background:var(--g100)}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{font-size:2rem;margin-bottom:8px;display:block}
+.upload-title{font-weight:700;font-size:0.95rem;color:var(--g700);margin-bottom:4px}
+.upload-sub{font-size:0.8rem;color:var(--muted)}
+.bill-or{display:flex;align-items:center;gap:12px;margin:1.2rem 0;color:var(--muted);font-size:0.82rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.bill-or::before,.bill-or::after{content:'';flex:1;height:1px;background:var(--border)}
+.upload-preview{margin-top:1rem;background:#fff;border:1px solid var(--g100);border-radius:var(--rs);padding:1rem;display:none}
+.preview-img{max-width:100%;max-height:200px;border-radius:6px;object-fit:contain;display:block;margin:0 auto 0.7rem}
+.extract-status{display:flex;align-items:center;gap:8px;font-size:0.85rem;font-weight:600}
+.extract-status.reading{color:var(--g500)}
+.extract-status.done{color:var(--g700)}
+.extract-status.err{color:#8b2020}
+.extracted-vals{margin-top:.8rem;display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.ev-item{background:var(--g50);border:1px solid var(--g100);border-radius:6px;padding:.5rem .8rem;font-size:.8rem}
+.ev-label{color:var(--muted);font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.ev-val{color:var(--g700);font-weight:700;font-size:.95rem;margin-top:1px}
+.use-bill-btn{margin-top:.8rem;background:var(--g500);color:#fff;border:none;padding:9px 20px;border-radius:50px;font-size:.83rem;font-weight:600;cursor:pointer;transition:background .2s}
+.use-bill-btn:hover{background:var(--g700)}
+.clear-upload{margin-left:8px;background:transparent;border:1px solid var(--border);color:var(--muted);padding:9px 16px;border-radius:50px;font-size:.83rem;font-weight:600;cursor:pointer;transition:all .2s}
+.clear-upload:hover{border-color:#f5c6c6;color:#8b2020}
+
+/* CONSUMPTION ANALYSIS */
+.cons-card{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:1.5rem;margin-top:1rem;display:none}
+.cons-title{font-family:var(--fd);font-size:1rem;font-weight:700;color:var(--ch);margin-bottom:.3rem}
+.cons-sub{font-size:.8rem;color:var(--muted);margin-bottom:1rem}
+.cons-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.7rem;margin-bottom:1.2rem}
+.cs-item{background:var(--g50);border:1px solid var(--g100);border-radius:var(--rs);padding:.7rem .9rem;text-align:center}
+.cs-label{font-size:.65rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.cs-val{font-family:var(--fd);font-size:1.1rem;font-weight:700;color:var(--g700)}
+.cs-item.highlight{background:var(--g100);border-color:var(--g300)}
+.cs-item.highlight .cs-val{color:var(--g900)}
+.bar-chart{margin-bottom:1rem}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.bar-month{font-size:.72rem;color:var(--muted);width:30px;flex-shrink:0;text-align:right}
+.bar-track{flex:1;background:var(--g50);border-radius:50px;height:16px;overflow:hidden;position:relative}
+.bar-fill{height:100%;border-radius:50px;background:linear-gradient(90deg,var(--g300),var(--g500));transition:width .4s ease;min-width:4px}
+.bar-fill.peak{background:linear-gradient(90deg,#e8a920,#c88a00)}
+.bar-fill.low{background:linear-gradient(90deg,var(--g100),var(--g300))}
+.bar-val{font-size:.72rem;font-weight:600;color:var(--mid);width:52px;flex-shrink:0}
+.coverage-section{background:var(--g50);border:1px solid var(--g100);border-radius:var(--rs);padding:1rem 1.1rem;margin-top:.5rem}
+.cov-title{font-size:.75rem;font-weight:700;color:var(--g700);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.6rem}
+.cov-bars{display:flex;flex-direction:column;gap:6px}
+.cov-row{display:flex;align-items:center;gap:10px}
+.cov-label{font-size:.78rem;color:var(--mid);width:110px;flex-shrink:0}
+.cov-track{flex:1;background:#e0ede0;border-radius:50px;height:12px;overflow:hidden}
+.cov-fill{height:100%;border-radius:50px}
+.cov-pct{font-size:.78rem;font-weight:700;width:38px;flex-shrink:0;text-align:right}
+
+/* HIDDEN PDF TEMPLATE */
+#pdf-content{display:none}
+
+@media(max-width:600px){
+  .form-grid{grid-template-columns:1fr}
+  .quote-summary{grid-template-columns:1fr 1fr}
+  .steps{font-size:0.72rem}
+  .step-num{font-size:0.9rem}
+}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="ph-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+    </svg>
+  </div>
+  <div>
+    <div class="ph-title">Shashwat Solar Energy</div>
+    <div class="ph-sub">Instant Solar Quote Generator · Mumbai, Maharashtra</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="steps" id="steps">
+    <div class="step-item active" id="s1"><span class="step-num">1</span>Your Details</div>
+    <div class="step-item" id="s2"><span class="step-num">2</span>AI Calculates</div>
+    <div class="step-item" id="s3"><span class="step-num">3</span>Your Quote</div>
+  </div>
+
+  <!-- STEP 1: INPUT FORM -->
+  <div id="form-section">
+    <div class="card">
+      <div class="card-title">Tell us about your energy needs</div>
+      <div class="card-sub">Fill in the details below and we'll generate a personalised solar quote with government subsidy calculations in seconds.</div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="cname">Full Name *</label>
+          <input type="text" id="cname" placeholder="Rahul Mehta" required/>
+        </div>
+        <div class="form-group">
+          <label for="cphone">Phone Number *</label>
+          <input type="tel" id="cphone" placeholder="+91 98XXX XXXXX" required/>
+        </div>
+        <div class="form-group">
+          <label for="cemail">Email Address</label>
+          <input type="email" id="cemail" placeholder="you@example.com"/>
+        </div>
+        <div class="form-group">
+          <label for="caddr">Property Location (Mumbai area)</label>
+          <input type="text" id="caddr" placeholder="e.g. Andheri West, Mumbai"/>
+        </div>
+        <div class="form-group full">
+          <label>Electricity Bill — Upload or Enter Manually *</label>
+          <div class="upload-zone" id="uploadZone" ondragover="handleDrag(event,true)" ondragleave="handleDrag(event,false)" ondrop="handleDrop(event)">
+            <input type="file" id="billFile" accept="image/*,.pdf" onchange="handleFileSelect(event)"/>
+            <span class="upload-icon">📄</span>
+            <div class="upload-title">Drop your electricity bill here</div>
+            <div class="upload-sub">Supports MSEDCL / Adani / BEST bill images or PDFs · AI will auto-read the figures</div>
+          </div>
+          <div class="upload-preview" id="uploadPreview">
+            <img id="previewImg" class="preview-img" src="" alt="Bill preview" style="display:none"/>
+            <div class="extract-status reading" id="extractStatus">
+              <span id="extractIcon">⏳</span><span id="extractMsg">Reading your bill with AI…</span>
+            </div>
+            <div class="extracted-vals" id="extractedVals"></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+              <button class="use-bill-btn" id="useBillBtn" onclick="applyExtracted()" style="display:none">✓ Use These Values</button>
+              <button class="clear-upload" onclick="clearUpload()">✕ Remove</button>
+            </div>
+          </div>
+          <!-- CONSUMPTION ANALYSIS CARD -->
+          <div class="cons-card" id="consCard">
+            <div class="cons-title">📊 Consumption Analysis</div>
+            <div class="cons-sub" id="consSubtitle">Based on your uploaded bill</div>
+            <div class="cons-stats" id="consStats"></div>
+            <div class="bar-chart" id="barChart"></div>
+            <div class="coverage-section" id="coverageSection"></div>
+          </div>
+
+          <div class="bill-or"><span>or enter manually</span></div>
+          <div class="bill-input-wrap">
+            <span class="bill-prefix">₹</span>
+            <input type="number" id="bill" placeholder="3500" min="500" max="200000"/>
+          </div>
+          <div style="font-size:0.76rem;color:var(--muted);margin-top:4px">If you upload a bill, the amount will be filled automatically — you can still edit it.</div>
+        </div>
+        <div class="form-group">
+          <label for="ptype">Property Type *</label>
+          <select id="ptype">
+            <option value="">Select…</option>
+            <option value="Residential – Apartment">Residential – Apartment</option>
+            <option value="Residential – Bungalow / Villa">Residential – Bungalow / Villa</option>
+            <option value="Commercial – Office">Commercial – Office</option>
+            <option value="Commercial – Shop / Showroom">Commercial – Shop / Showroom</option>
+            <option value="Industrial – Factory / Warehouse">Industrial – Factory / Warehouse</option>
+            <option value="Society / Housing Complex">Society / Housing Complex</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="roof">Available Rooftop Area (sq ft) — optional</label>
+          <input type="number" id="roof" placeholder="e.g. 400"/>
+        </div>
+        <div class="form-group">
+          <label for="conn">Electricity Connection Type</label>
+          <select id="conn">
+            <option value="Single Phase (Residential ≤ 5kW)">Single Phase (Residential ≤5kW)</option>
+            <option value="Three Phase (Residential / Commercial)">Three Phase (Residential / Commercial)</option>
+            <option value="HT / Industrial Connection">HT / Industrial Connection</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label for="notes">Any specific requirements or questions?</label>
+          <textarea id="notes" rows="2" placeholder="e.g. interested in battery backup, want 5-year maintenance contract, planning EV charging…"></textarea>
+        </div>
+      </div>
+
+      <div style="margin-top:1.5rem;display:flex;gap:1rem;align-items:center;flex-wrap:wrap">
+        <button class="btn-primary" onclick="generateQuote()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          Generate My Solar Quote
+        </button>
+        <span style="font-size:0.82rem;color:var(--muted)">Takes about 10–15 seconds · Powered by AI</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2: LOADING -->
+  <div id="loading-section" style="display:none">
+    <div class="card">
+      <div class="loading-wrap">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loading-msg">Analysing your electricity consumption…</div>
+        <div class="loading-steps">
+          <div class="ls-item"><div class="ls-dot active" id="ld1"></div>Reading your monthly bill data</div>
+          <div class="ls-item"><div class="ls-dot" id="ld2"></div>Calculating optimal system size</div>
+          <div class="ls-item"><div class="ls-dot" id="ld3"></div>Applying PM Surya Ghar subsidies</div>
+          <div class="ls-item"><div class="ls-dot" id="ld4"></div>Computing ROI & payback period</div>
+          <div class="ls-item"><div class="ls-dot" id="ld5"></div>Drafting your personalised quote</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: RESULT -->
+  <div id="result-section" style="display:none">
+    <div id="error-box" class="error-box" style="display:none"></div>
+    <div class="card" id="result-card">
+      <!-- filled by JS -->
+    </div>
+  </div>
+
+</div>
+
+<script>
+const QUOTE_NUM = () => 'SSE-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random()*9000)+1000);
+let quoteData = null;
+let quoteNo = '';
+let extractedBillData = null;
+
+/* ── BILL UPLOAD & AI READING ── */
+function handleDrag(e, over) {
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.toggle('drag', over);
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if (file) processFile(file);
+}
+
+function handleFileSelect(e) {
+  const file = e.target.files[0];
+  if (file) processFile(file);
+}
+
+function clearUpload() {
+  document.getElementById('uploadPreview').style.display = 'none';
+  document.getElementById('previewImg').style.display = 'none';
+  document.getElementById('billFile').value = '';
+  document.getElementById('extractedVals').innerHTML = '';
+  document.getElementById('useBillBtn').style.display = 'none';
+  extractedBillData = null;
+}
+
+async function processFile(file) {
+  const preview = document.getElementById('uploadPreview');
+  preview.style.display = 'block';
+  document.getElementById('extractStatus').className = 'extract-status reading';
+  document.getElementById('extractIcon').textContent = '⏳';
+  document.getElementById('extractMsg').textContent = 'Reading your bill with AI…';
+  document.getElementById('extractedVals').innerHTML = '';
+  document.getElementById('useBillBtn').style.display = 'none';
+
+  // Show image preview if image type
+  const isImage = file.type.startsWith('image/');
+  const isPDF = file.type === 'application/pdf';
+  const previewImg = document.getElementById('previewImg');
+
+  if (isImage) {
+    const reader = new FileReader();
+    reader.onload = e => { previewImg.src = e.target.result; previewImg.style.display = 'block'; };
+    reader.readAsDataURL(file);
+  } else {
+    previewImg.style.display = 'none';
+  }
+
+  // Convert file to base64
+  const base64 = await fileToBase64(file);
+
+  // Build message content for Claude vision
+  let msgContent;
+  if (isImage) {
+    msgContent = [
+      { type: 'image', source: { type: 'base64', media_type: file.type, data: base64 } },
+      { type: 'text', text: `This is an Indian electricity bill (MSEDCL / Adani Electricity / BEST / TATA Power or similar Mumbai/Maharashtra utility).
+Extract ALL available information including the consumption history table which is usually shown on Indian electricity bills listing past months. Respond ONLY with a valid JSON object, no markdown, no explanation:
+{
+  "consumerName": "string or null",
+  "consumerNo": "string or null",
+  "address": "string or null",
+  "billingMonth": "string or null",
+  "unitsConsumed": number or null,
+  "billAmount": number or null,
+  "sanctionedLoad": "string or null",
+  "connectionType": "string or null",
+  "meterNo": "string or null",
+  "dueDate": "string or null",
+  "arrears": number or null,
+  "consumptionHistory": [{"month":"MMM-YY","units":number}],
+  "confidence": "high/medium/low",
+  "notes": "any important observations about the bill"
+}
+consumptionHistory: extract the monthly consumption table from the bill (usually 6-12 months shown as a bar chart or table). Each entry has month label and units (kWh). If no history visible, return empty array []. billAmount = total amount payable. unitsConsumed = kWh this billing period.` }
+    ];
+  } else if (isPDF) {
+    msgContent = [
+      { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } },
+      { type: 'text', text: `This is an Indian electricity bill PDF (MSEDCL / Adani Electricity / BEST / TATA Power or similar Mumbai/Maharashtra utility).
+Extract ALL information including the monthly consumption history table shown on most Indian bills. Respond ONLY with a valid JSON object, no markdown, no explanation:
+{
+  "consumerName": "string or null",
+  "consumerNo": "string or null",
+  "address": "string or null",
+  "billingMonth": "string or null",
+  "unitsConsumed": number or null,
+  "billAmount": number or null,
+  "sanctionedLoad": "string or null",
+  "connectionType": "string or null",
+  "meterNo": "string or null",
+  "dueDate": "string or null",
+  "arrears": number or null,
+  "consumptionHistory": [{"month":"MMM-YY","units":number}],
+  "confidence": "high/medium/low",
+  "notes": "any important observations"
+}
+consumptionHistory: extract every month from the consumption table/chart. If not visible return []. billAmount = total amount payable. unitsConsumed = kWh this period.` }
+    ];
+  } else {
+    showExtractError('Unsupported file type. Please upload an image (JPG/PNG) or PDF.');
+    return;
+  }
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: msgContent }]
+      })
+    });
+    const data = await res.json();
+    let raw = data.content.map(b => b.text || '').join('').replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(raw);
+    extractedBillData = parsed;
+    showExtractedData(parsed);
+  } catch(e) {
+    showExtractError('Could not read bill: ' + e.message);
+  }
+}
+
+function fileToBase64(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result.split(',')[1]);
+    r.onerror = () => rej(new Error('File read failed'));
+    r.readAsDataURL(file);
+  });
+}
+
+function showExtractError(msg) {
+  document.getElementById('extractStatus').className = 'extract-status err';
+  document.getElementById('extractIcon').textContent = '✕';
+  document.getElementById('extractMsg').textContent = msg;
+}
+
+function showExtractedData(d) {
+  const confColor = d.confidence === 'high' ? '#1a6630' : d.confidence === 'medium' ? '#7a5200' : '#8b2020';
+  document.getElementById('extractStatus').className = 'extract-status done';
+  document.getElementById('extractIcon').textContent = '✓';
+  document.getElementById('extractMsg').innerHTML = `Bill read successfully &nbsp;<span style="font-size:.75rem;background:${confColor};color:#fff;padding:2px 8px;border-radius:50px">${d.confidence} confidence</span>`;
+
+  const vals = document.getElementById('extractedVals');
+  const items = [
+    { label: 'Bill Amount', val: d.billAmount ? '₹' + Math.round(d.billAmount).toLocaleString('en-IN') : '—' },
+    { label: 'Units Consumed', val: d.unitsConsumed ? d.unitsConsumed + ' kWh' : '—' },
+    { label: 'Consumer Name', val: d.consumerName || '—' },
+    { label: 'Billing Month', val: d.billingMonth || '—' },
+    { label: 'Connection', val: d.connectionType || '—' },
+    { label: 'Sanctioned Load', val: d.sanctionedLoad || '—' },
+  ];
+  vals.innerHTML = items.map(i => `<div class="ev-item"><div class="ev-label">${i.label}</div><div class="ev-val">${i.val}</div></div>`).join('');
+
+  if (d.notes) {
+    vals.innerHTML += `<div class="ev-item" style="grid-column:1/-1"><div class="ev-label">AI Notes</div><div class="ev-val" style="font-size:.8rem;font-weight:400;color:var(--mid)">${d.notes}</div></div>`;
+  }
+
+  document.getElementById('useBillBtn').style.display = 'inline-flex';
+
+  // Render consumption analysis if history available
+  const hist = d.consumptionHistory;
+  if (hist && hist.length > 0) {
+    renderConsumptionAnalysis(d, hist);
+  } else if (d.unitsConsumed) {
+    // Single month only — still show basic analysis
+    renderConsumptionAnalysis(d, [{ month: d.billingMonth || 'This month', units: d.unitsConsumed }]);
+  }
+}
+
+function renderConsumptionAnalysis(d, hist) {
+  const card = document.getElementById('consCard');
+  card.style.display = 'block';
+
+  const units = hist.map(h => h.units).filter(u => u > 0);
+  const avg = units.length ? Math.round(units.reduce((a,b) => a+b, 0) / units.length) : (d.unitsConsumed || 0);
+  const minU = Math.min(...units);
+  const maxU = Math.max(...units);
+  const annualEst = avg * 12;
+
+  // Store for use in quote generation
+  extractedBillData._avg = avg;
+  extractedBillData._min = minU;
+  extractedBillData._max = maxU;
+  extractedBillData._annual = annualEst;
+  extractedBillData._histMonths = hist.length;
+
+  // Solar sizing: system needs to cover AVERAGE consumption
+  // Mumbai: 4.5 sun hrs/day, 80% efficiency, 540W panels
+  // kWh/day needed = avg/30; system kW = (avg/30) / (4.5 * 0.80)
+  const dailyAvg = avg / 30;
+  const sysKwAvg = Math.ceil((dailyAvg / (4.5 * 0.8)) * 10) / 10;
+  const sysKwMin = Math.ceil(((minU/30) / (4.5 * 0.8)) * 10) / 10;
+  const sysKwMax = Math.ceil(((maxU/30) / (4.5 * 0.8)) * 10) / 10;
+  const panelsPeak = Math.ceil((sysKwMax * 1000) / 540);
+  const panelsAvg = Math.ceil((sysKwAvg * 1000) / 540);
+  // Roof area: ~10 sqft per 100W
+  const roofAvg = Math.round(sysKwAvg * 100);
+  const roofMax = Math.round(sysKwMax * 100);
+
+  // Stats row
+  const statsEl = document.getElementById('consStats');
+  statsEl.innerHTML = [
+    { label: 'Monthly Average', val: avg + ' kWh', highlight: true },
+    { label: 'Peak Month', val: maxU + ' kWh' },
+    { label: 'Lowest Month', val: minU + ' kWh' },
+    { label: 'Annual Estimate', val: annualEst.toLocaleString('en-IN') + ' kWh' },
+  ].map(s => `<div class="cs-item${s.highlight?' highlight':''}"><div class="cs-label">${s.label}</div><div class="cs-val">${s.val}</div></div>`).join('');
+
+  // Subtitle
+  document.getElementById('consSubtitle').textContent =
+    hist.length > 1 ? `Based on ${hist.length} months of consumption data from your bill` : 'Based on this month's consumption';
+
+  // Bar chart
+  const peak = maxU;
+  const barEl = document.getElementById('barChart');
+  if (hist.length > 1) {
+    barEl.innerHTML = hist.map(h => {
+      const pct = Math.round((h.units / peak) * 100);
+      const cls = h.units === maxU ? 'peak' : h.units === minU ? 'low' : '';
+      return `<div class="bar-row">
+        <span class="bar-month">${String(h.month).substring(0,3)}</span>
+        <div class="bar-track"><div class="bar-fill ${cls}" style="width:${pct}%"></div></div>
+        <span class="bar-val">${h.units} kWh</span>
+      </div>`;
+    }).join('');
+  } else {
+    barEl.innerHTML = '';
+  }
+
+  // Panel coverage section
+  const covEl = document.getElementById('coverageSection');
+  const covAvgPct = Math.min(100, Math.round((sysKwAvg * 4.5 * 0.8 * 30) / avg * 100));
+  const covMinPct = Math.min(100, Math.round((sysKwAvg * 4.5 * 0.8 * 30) / minU * 100));
+  const covMaxPct = Math.min(100, Math.round((sysKwAvg * 4.5 * 0.8 * 30) / maxU * 100));
+  covEl.innerHTML = `
+    <div class="cov-title">Recommended System Coverage</div>
+    <p style="font-size:.78rem;color:var(--mid);margin-bottom:.8rem">
+      For full average coverage: <strong style="color:var(--g700)">${sysKwAvg} kW system</strong> (${panelsAvg} × 540W panels, ~${roofAvg} sq ft roof).
+      To cover even peak months: <strong style="color:var(--g700)">${sysKwMax} kW system</strong> (${panelsPeak} × 540W panels, ~${roofMax} sq ft roof).
+    </p>
+    <div class="cov-bars">
+      <div class="cov-row">
+        <span class="cov-label">Average month</span>
+        <div class="cov-track"><div class="cov-fill" style="width:${covAvgPct}%;background:linear-gradient(90deg,#6dbe84,#2e9947)"></div></div>
+        <span class="cov-pct" style="color:#1a6630">${covAvgPct}%</span>
+      </div>
+      <div class="cov-row">
+        <span class="cov-label">Lowest month</span>
+        <div class="cov-track"><div class="cov-fill" style="width:${Math.min(100,covMinPct)}%;background:linear-gradient(90deg,#9fe1cb,#2e9947)"></div></div>
+        <span class="cov-pct" style="color:#1a6630">${Math.min(100,covMinPct)}%</span>
+      </div>
+      <div class="cov-row">
+        <span class="cov-label">Peak month</span>
+        <div class="cov-track"><div class="cov-fill" style="width:${covMaxPct}%;background:linear-gradient(90deg,#f0d060,#c88a00)"></div></div>
+        <span class="cov-pct" style="color:#7a5200">${covMaxPct}%</span>
+      </div>
+    </div>
+    <p style="font-size:.72rem;color:var(--muted);margin-top:.7rem">⚡ Surplus generation in low months feeds back to the grid via net metering, offsetting peak month costs.</p>
+  `;
+}
+
+function applyExtracted() {
+  if (!extractedBillData) return;
+  const d = extractedBillData;
+
+  // Auto-fill bill amount
+  if (d.billAmount) {
+    document.getElementById('bill').value = Math.round(d.billAmount);
+  }
+  // Auto-fill name if form is empty
+  if (d.consumerName && !document.getElementById('cname').value.trim()) {
+    document.getElementById('cname').value = d.consumerName;
+  }
+  // Auto-fill address if empty
+  if (d.address && !document.getElementById('caddr').value.trim()) {
+    document.getElementById('caddr').value = d.address;
+  }
+  // Auto-set connection type
+  if (d.connectionType) {
+    const conn = document.getElementById('conn');
+    const val = d.connectionType.toLowerCase();
+    if (val.includes('three') || val.includes('3') || val.includes('ht')) {
+      conn.value = 'Three Phase (Residential / Commercial)';
+    } else {
+      conn.value = 'Single Phase (Residential ≤ 5kW)';
+    }
+  }
+
+  document.getElementById('useBillBtn').textContent = '✓ Applied!';
+  document.getElementById('useBillBtn').style.background = '#1a6630';
+  setTimeout(() => {
+    document.getElementById('useBillBtn').textContent = '✓ Use These Values';
+    document.getElementById('useBillBtn').style.background = '';
+  }, 2000);
+
+  // Scroll to bill field
+  document.getElementById('bill').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  document.getElementById('bill').focus();
+}
+
+async function generateQuote() {
+  const name = document.getElementById('cname').value.trim();
+  const phone = document.getElementById('cphone').value.trim();
+  const bill = parseFloat(document.getElementById('bill').value);
+  const ptype = document.getElementById('ptype').value;
+
+  if (!name || !phone || !bill || !ptype) {
+    alert('Please fill in: Name, Phone, Property Type, and your Monthly Bill amount.\n\nTip: Upload your electricity bill above and click "Use These Values" to auto-fill the amount.');
+    return;
+  }
+
+  const email = document.getElementById('cemail').value.trim();
+  const addr = document.getElementById('caddr').value.trim();
+  const roof = document.getElementById('roof').value.trim();
+  const conn = document.getElementById('conn').value;
+  const notes = document.getElementById('notes').value.trim();
+
+  document.getElementById('form-section').style.display = 'none';
+  document.getElementById('loading-section').style.display = 'block';
+  document.getElementById('result-section').style.display = 'none';
+  setStep(2);
+
+  animateLoading();
+
+  // Pull consumption stats from extracted bill if available
+  const consData = extractedBillData && extractedBillData._avg ? `
+- Monthly average consumption (from bill history): ${extractedBillData._avg} kWh
+- Peak month consumption: ${extractedBillData._max} kWh
+- Lowest month consumption: ${extractedBillData._min} kWh
+- Annual estimated consumption: ${extractedBillData._annual} kWh
+- Months of history available: ${extractedBillData._histMonths}` : '';
+
+  const prompt = `You are a solar energy expert for Shashwat Solar Energy, a solar retailer in Mumbai, India.
+
+A customer has submitted the following details for a solar installation quote:
+- Name: ${name}
+- Monthly electricity bill: ₹${bill}
+- Property type: ${ptype}
+- Location: ${addr || 'Mumbai, Maharashtra'}
+- Rooftop area available: ${roof ? roof + ' sq ft' : 'not specified'}
+- Connection type: ${conn}
+- Notes: ${notes || 'none'}${consData}
+
+Generate a detailed, realistic solar installation quote for Mumbai conditions. Use these assumptions:
+- Mumbai average electricity tariff: ₹9.50/unit (MSEDCL residential), ₹11/unit (commercial)
+- Solar generation: 4.5 peak sun hours/day in Mumbai
+- System efficiency: 80%
+- Panel wattage: 540W monocrystalline
+- Inverter: string inverter or microinverter as appropriate
+- 2025 PM Surya Ghar Muft Bijli Yojana subsidy: ₹30,000 for 1-2kW, ₹60,000 for 2-3kW, ₹78,000 for 3kW and above (residential only, capped)
+- Maharashtra state additional subsidy: ₹10,000 flat for residential
+- GST on solar systems: 12%
+- Panel cost: ₹28,000–₹32,000 per kW (supply only)
+- Inverter cost: ₹12,000–₹18,000 per kW
+- Installation / civil / mounting: ₹8,000–₹12,000 per kW
+- Wiring, earthing, protection: ₹6,000–₹8,000 per kW
+- Net metering application fee: ₹3,500 (residential), ₹7,000 (commercial)
+- Annual degradation: 0.5%
+
+Respond ONLY with a valid JSON object. No markdown, no explanation. Exactly this structure:
+{
+  "systemSizeKw": number,
+  "panelCount": number,
+  "panelWattage": number,
+  "estimatedMonthlyGenKwh": number,
+  "currentMonthlyBillRs": number,
+  "projectedMonthlyBillRs": number,
+  "monthlySavingsRs": number,
+  "annualSavingsRs": number,
+  "costBreakdown": [
+    {"item": "string", "qty": "string", "unitCost": number, "totalCost": number}
+  ],
+  "subtotalBeforeGST": number,
+  "gstAmount": number,
+  "grossTotalCost": number,
+  "centralSubsidy": number,
+  "stateSubsidy": number,
+  "netCostAfterSubsidy": number,
+  "simplePaybackYears": number,
+  "roi25Years": number,
+  "co2SavedTonnesPerYear": number,
+  "warrantyNote": "string",
+  "subsidyEligibility": "string",
+  "recommendedSystemNote": "string",
+  "systemSizeMinKw": number,
+  "systemSizeMaxKw": number,
+  "panelCountMin": number,
+  "panelCountMax": number,
+  "roofAreaRequiredSqFt": number,
+  "coverageNote": "string explaining min/avg/max coverage and net metering strategy"
+}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{role: 'user', content: prompt}]
+      })
+    });
+
+    const data = await res.json();
+    let raw = data.content.map(b => b.text || '').join('');
+    raw = raw.replace(/```json|```/g, '').trim();
+    quoteData = JSON.parse(raw);
+    quoteData.customerName = name;
+    quoteData.customerPhone = phone;
+    quoteData.customerEmail = email;
+    quoteData.customerAddr = addr || 'Mumbai, Maharashtra';
+    quoteData.propertyType = ptype;
+    quoteNo = QUOTE_NUM();
+    quoteData.quoteNo = quoteNo;
+    quoteData.quoteDate = new Date().toLocaleDateString('en-IN', {day:'2-digit', month:'long', year:'numeric'});
+    quoteData.validUntil = new Date(Date.now() + 30*24*60*60*1000).toLocaleDateString('en-IN', {day:'2-digit', month:'long', year:'numeric'});
+
+    document.getElementById('loading-section').style.display = 'none';
+    document.getElementById('result-section').style.display = 'block';
+    setStep(3);
+    renderResult(quoteData);
+  } catch(e) {
+    document.getElementById('loading-section').style.display = 'none';
+    document.getElementById('result-section').style.display = 'block';
+    document.getElementById('error-box').style.display = 'block';
+    document.getElementById('error-box').textContent = 'Could not generate quote: ' + e.message + '. Please check your connection and try again.';
+    setStep(1);
+    document.getElementById('form-section').style.display = 'block';
+  }
+}
+
+function setStep(n) {
+  ['s1','s2','s3'].forEach((id,i) => {
+    const el = document.getElementById(id);
+    el.className = 'step-item';
+    if(i+1 < n) el.classList.add('done');
+    else if(i+1 === n) el.classList.add('active');
+  });
+}
+
+function animateLoading() {
+  const msgs = ['Analysing your electricity consumption…','Calculating optimal system size for Mumbai…','Applying PM Surya Ghar Yojana subsidies…','Computing 25-year ROI & payback period…','Drafting your personalised quote…'];
+  const dots = ['ld1','ld2','ld3','ld4','ld5'];
+  let i = 0;
+  const iv = setInterval(() => {
+    if(i > 0) document.getElementById(dots[i-1]).className = 'ls-dot done';
+    if(i < dots.length) {
+      document.getElementById(dots[i]).className = 'ls-dot active';
+      document.getElementById('loading-msg').textContent = msgs[i];
+    }
+    i++;
+    if(i >= dots.length + 1) clearInterval(iv);
+  }, 1800);
+}
+
+function fmt(n) { return Math.round(n).toLocaleString('en-IN'); }
+function fmtD(n, d=1) { return Number(n).toFixed(d); }
+
+function renderResult(q) {
+  const isResidential = !q.propertyType.toLowerCase().includes('industrial') && !q.propertyType.toLowerCase().includes('commercial');
+  const card = document.getElementById('result-card');
+  card.innerHTML = `
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.2rem">
+      <div>
+        <div class="card-title">Your Solar Quote is Ready!</div>
+        <div class="card-sub">Quote #${q.quoteNo} · Valid until ${q.validUntil}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:0.78rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.06em">Prepared for</div>
+        <div style="font-weight:700;font-size:1rem;color:var(--ch)">${q.customerName}</div>
+        <div style="font-size:0.83rem;color:var(--mid)">${q.customerPhone}</div>
+      </div>
+    </div>
+
+    ${isResidential ? `<div class="subsidy-badge">★ PM Surya Ghar Yojana Eligible — Subsidy of ₹${fmt(q.centralSubsidy + q.stateSubsidy)} applicable</div>` : ''}
+
+    <div class="quote-summary">
+      <div class="qs-card">
+        <div class="qs-label">Recommended System</div>
+        <div class="qs-val">${fmtD(q.systemSizeKw)} kW</div>
+        <div class="qs-sub">${q.panelCount} × ${q.panelWattage}W panels</div>
+      </div>
+      <div class="qs-card">
+        <div class="qs-label">Net Cost After Subsidy</div>
+        <div class="qs-val">₹${fmt(q.netCostAfterSubsidy)}</div>
+        <div class="qs-sub">incl. GST, excl. subsidy</div>
+      </div>
+      <div class="qs-card">
+        <div class="qs-label">Payback Period</div>
+        <div class="qs-val">${fmtD(q.simplePaybackYears)} yrs</div>
+        <div class="qs-sub">₹${fmt(q.annualSavingsRs)}/yr savings</div>
+      </div>
+    </div>
+
+    ${(q.systemSizeMinKw && q.systemSizeMaxKw) ? `
+    <div style="background:var(--g50);border:1px solid var(--g100);border-radius:var(--rs);padding:1.2rem 1.4rem;margin-bottom:1.2rem">
+      <div style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.7rem">Panel Sizing Range — Based on Your Consumption History</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-bottom:.9rem">
+        <div style="text-align:center;background:#fff;border:1px solid var(--border);border-radius:var(--rs);padding:.7rem">
+          <div style="font-size:.68rem;color:var(--muted);font-weight:700;text-transform:uppercase;margin-bottom:3px">Minimum</div>
+          <div style="font-family:var(--fd);font-size:1.2rem;font-weight:700;color:var(--g500)">${fmtD(q.systemSizeMinKw)} kW</div>
+          <div style="font-size:.7rem;color:var(--muted)">${q.panelCountMin} panels · covers low months</div>
+        </div>
+        <div style="text-align:center;background:var(--g100);border:2px solid var(--g300);border-radius:var(--rs);padding:.7rem;position:relative">
+          <div style="position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:var(--g500);color:#fff;font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:50px;white-space:nowrap">RECOMMENDED</div>
+          <div style="font-size:.68rem;color:var(--g700);font-weight:700;text-transform:uppercase;margin-bottom:3px">Optimal</div>
+          <div style="font-family:var(--fd);font-size:1.2rem;font-weight:700;color:var(--g900)">${fmtD(q.systemSizeKw)} kW</div>
+          <div style="font-size:.7rem;color:var(--g700)">${q.panelCount} panels · covers average</div>
+        </div>
+        <div style="text-align:center;background:#fff;border:1px solid var(--border);border-radius:var(--rs);padding:.7rem">
+          <div style="font-size:.68rem;color:var(--muted);font-weight:700;text-transform:uppercase;margin-bottom:3px">Maximum</div>
+          <div style="font-family:var(--fd);font-size:1.2rem;font-weight:700;color:var(--gold)">${fmtD(q.systemSizeMaxKw)} kW</div>
+          <div style="font-size:.7rem;color:var(--muted)">${q.panelCountMax} panels · covers peak months</div>
+        </div>
+      </div>
+      <div style="font-size:.8rem;color:var(--mid);line-height:1.6;border-top:1px solid var(--g100);padding-top:.7rem">${q.coverageNote || 'System sized to optimally cover your average consumption. Net metering ensures surplus summer/monsoon generation offsets winter peak bills.'}</div>
+      ${q.roofAreaRequiredSqFt ? `<div style="margin-top:.5rem;font-size:.78rem;font-weight:600;color:var(--g700)">🏠 Estimated roof area required: ${q.roofAreaRequiredSqFt} sq ft for the recommended system</div>` : ''}
+    </div>` : ''}
+
+    <table class="quote-table">
+      <thead>
+        <tr><th>Item</th><th>Qty / Spec</th><th style="text-align:right">Unit Cost</th><th style="text-align:right">Total (₹)</th></tr>
+      </thead>
+      <tbody>
+        ${q.costBreakdown.map(r => `<tr>
+          <td>${r.item}</td>
+          <td style="color:var(--mid)">${r.qty}</td>
+          <td style="text-align:right">₹${fmt(r.unitCost)}</td>
+          <td style="text-align:right;font-weight:600">₹${fmt(r.totalCost)}</td>
+        </tr>`).join('')}
+        <tr><td colspan="3" style="text-align:right;color:var(--mid);font-size:0.85rem">Subtotal (excl. GST)</td><td style="text-align:right;font-weight:600">₹${fmt(q.subtotalBeforeGST)}</td></tr>
+        <tr><td colspan="3" style="text-align:right;color:var(--mid);font-size:0.85rem">GST @ 12%</td><td style="text-align:right;font-weight:600">₹${fmt(q.gstAmount)}</td></tr>
+        <tr class="total-row"><td colspan="3" style="text-align:right">Gross Total (incl. GST)</td><td style="text-align:right">₹${fmt(q.grossTotalCost)}</td></tr>
+        ${isResidential ? `
+        <tr class="savings-row"><td colspan="3" style="text-align:right">Central Subsidy (PM Surya Ghar)</td><td style="text-align:right">– ₹${fmt(q.centralSubsidy)}</td></tr>
+        <tr class="savings-row"><td colspan="3" style="text-align:right">Maharashtra State Subsidy</td><td style="text-align:right">– ₹${fmt(q.stateSubsidy)}</td></tr>
+        <tr class="total-row"><td colspan="3" style="text-align:right;background:#d4f0db;color:var(--g900)">Net Payable After Subsidy</td><td style="text-align:right;background:#d4f0db;color:var(--g900)">₹${fmt(q.netCostAfterSubsidy)}</td></tr>
+        ` : ''}
+      </tbody>
+    </table>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1.5rem">
+      <div style="background:var(--g50);border:1px solid var(--g100);border-radius:var(--rs);padding:1rem">
+        <div style="font-size:0.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Monthly Generation</div>
+        <div style="font-family:var(--fd);font-size:1.2rem;font-weight:700;color:var(--g700)">${fmt(q.estimatedMonthlyGenKwh)} kWh</div>
+        <div style="font-size:0.75rem;color:var(--muted)">estimated avg/month</div>
+      </div>
+      <div style="background:var(--g50);border:1px solid var(--g100);border-radius:var(--rs);padding:1rem">
+        <div style="font-size:0.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Projected New Bill</div>
+        <div style="font-family:var(--fd);font-size:1.2rem;font-weight:700;color:var(--g700)">₹${fmt(q.projectedMonthlyBillRs)}/mo</div>
+        <div style="font-size:0.75rem;color:var(--muted)">down from ₹${fmt(q.currentMonthlyBillRs)}</div>
+      </div>
+      <div style="background:var(--gold-light);border:1px solid #f0d060;border-radius:var(--rs);padding:1rem">
+        <div style="font-size:0.75rem;font-weight:700;color:#7a5200;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">25-Year Total Return</div>
+        <div style="font-family:var(--fd);font-size:1.2rem;font-weight:700;color:#7a5200">₹${fmt(q.roi25Years)}</div>
+        <div style="font-size:0.75rem;color:#9a6800">net savings over system life</div>
+      </div>
+    </div>
+
+    <div style="background:var(--g50);border:1px solid var(--g100);border-radius:var(--rs);padding:1.2rem;margin-bottom:1.5rem;font-size:0.87rem;color:var(--mid);line-height:1.7">
+      <strong style="color:var(--g700)">Expert Recommendation:</strong> ${q.recommendedSystemNote}
+    </div>
+
+    <div class="action-row">
+      <button class="pdf-btn" onclick="downloadPDF()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Download PDF Quote
+      </button>
+      <button class="btn-outline" onclick="resetForm()">Generate New Quote</button>
+    </div>
+  `;
+}
+
+function resetForm() {
+  document.getElementById('result-section').style.display = 'none';
+  document.getElementById('form-section').style.display = 'block';
+  setStep(1);
+  quoteData = null;
+}
+
+async function downloadPDF() {
+  if (!quoteData) return;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  const q = quoteData;
+  const W = 210, M = 18, TW = W - M * 2;
+  let y = 0;
+
+  const G9 = [13, 51, 25], G5 = [46, 153, 71], G1 = [212, 240, 219], GOLD = [232, 169, 32];
+  const OFF = [250, 250, 247], WHITE = [255, 255, 255], CH = [28, 34, 20], MID = [74, 82, 64], MUTED = [138, 146, 128];
+
+  const rect = (x, yw, w, h, col) => { doc.setFillColor(...col); doc.rect(x, yw, w, h, 'F'); };
+  const line = (x1, yw1, x2, yw2, col, lw=0.3) => { doc.setDrawColor(...col); doc.setLineWidth(lw); doc.line(x1, yw1, x2, yw2); };
+  const txt = (t, x, yw, col, sz, style='normal', align='left') => {
+    doc.setTextColor(...col); doc.setFontSize(sz); doc.setFont('helvetica', style);
+    doc.text(String(t), x, yw, {align});
+  };
+  const fmt2 = n => Math.round(n).toLocaleString('en-IN');
+
+  // ── HEADER ──
+  rect(0, 0, W, 42, G9);
+  rect(0, 42, W, 3, G5);
+  // sun icon circle
+  doc.setFillColor(...G5); doc.circle(M + 10, 21, 9, 'F');
+  txt('☀', M + 7, 25, WHITE, 14, 'bold');
+  txt('SHASHWAT SOLAR ENERGY', M + 24, 16, WHITE, 14, 'bold');
+  txt('Mumbai, Maharashtra  |  info@shashwatsolar.in  |  www.shashwatsolar.in', M + 24, 22, [200, 230, 210], 8);
+  txt('GSTIN: 27XXXXX0000X1ZX  |  CIN: U40100MH2015PTC000000', M + 24, 28, [180, 210, 190], 7.5);
+  txt('SOLAR INSTALLATION ESTIMATE', W - M, 17, [180, 230, 200], 9, 'bold', 'right');
+  txt(`Quote No: ${q.quoteNo}`, W - M, 23, [160, 215, 185], 8, 'normal', 'right');
+  txt(`Date: ${q.quoteDate}`, W - M, 29, [160, 215, 185], 8, 'normal', 'right');
+  txt(`Valid Until: ${q.validUntil}`, W - M, 35, GOLD, 8, 'bold', 'right');
+  y = 52;
+
+  // ── CUSTOMER INFO ──
+  rect(M, y, TW, 28, OFF);
+  doc.setDrawColor(...G1); doc.setLineWidth(0.4); doc.rect(M, y, TW, 28);
+  txt('PREPARED FOR', M + 5, y + 7, MUTED, 7, 'bold');
+  txt(q.customerName, M + 5, y + 14, CH, 13, 'bold');
+  txt(q.customerPhone + (q.customerEmail ? '  |  ' + q.customerEmail : ''), M + 5, y + 20, MID, 8);
+  txt(q.customerAddr + '  |  ' + q.propertyType, M + 5, y + 26, MUTED, 7.5);
+  y += 34;
+
+  // ── SUBSIDY BANNER ──
+  const isRes = !q.propertyType.toLowerCase().includes('industrial') && !q.propertyType.toLowerCase().includes('commercial');
+  if (isRes) {
+    rect(M, y, TW, 10, [253, 243, 215]);
+    doc.setDrawColor(240, 208, 96); doc.setLineWidth(0.4); doc.rect(M, y, TW, 10);
+    txt(`★  PM Surya Ghar Muft Bijli Yojana Eligible — Total Subsidy: ₹${fmt2(q.centralSubsidy + q.stateSubsidy)}  (Central ₹${fmt2(q.centralSubsidy)} + Maharashtra ₹${fmt2(q.stateSubsidy)})`, M + 5, y + 7, [122, 82, 0], 8, 'bold');
+    y += 14;
+  }
+
+  // ── SUMMARY BOXES ──
+  const boxes = [
+    {label:'System Size', val:`${Number(q.systemSizeKw).toFixed(1)} kW`, sub:`${q.panelCount} × ${q.panelWattage}W panels`},
+    {label:'Net Cost (After Subsidy)', val:`₹${fmt2(q.netCostAfterSubsidy)}`, sub:'incl. 12% GST'},
+    {label:'Payback Period', val:`${Number(q.simplePaybackYears).toFixed(1)} Years`, sub:`Save ₹${fmt2(q.annualSavingsRs)}/yr`},
+    {label:'CO₂ Saved / Year', val:`${Number(q.co2SavedTonnesPerYear).toFixed(1)} T`, sub:'carbon offset'},
+  ];
+  const bw = (TW - 9) / 4;
+  boxes.forEach((b, i) => {
+    const bx = M + i * (bw + 3);
+    rect(bx, y, bw, 22, G1);
+    doc.setDrawColor(...G5); doc.setLineWidth(0.5); doc.rect(bx, y, bw, 22);
+    txt(b.label, bx + bw/2, y + 7, MID, 6.5, 'bold', 'center');
+    txt(b.val, bx + bw/2, y + 15, G9, 10, 'bold', 'center');
+    txt(b.sub, bx + bw/2, y + 20, MUTED, 6, 'normal', 'center');
+  });
+  y += 28;
+
+  // ── COST BREAKDOWN TABLE ──
+  txt('COST BREAKDOWN', M, y + 6, G9, 9, 'bold');
+  y += 10;
+  const cols = [70, 35, 35, 34];
+  const heads = ['Item / Description', 'Qty / Spec', 'Unit Cost', 'Amount (₹)'];
+  let cx = M;
+  cols.forEach((cw, i) => {
+    rect(cx, y, cw, 8, G9);
+    txt(heads[i], cx + 3, y + 5.5, WHITE, 7, 'bold', i >= 2 ? 'right' : 'left');
+    if (i >= 2) { const adjusted = cx + cw - 3; doc.text(heads[i], adjusted, y + 5.5, {align:'right'}); }
+    cx += cw;
+  });
+  y += 8;
+
+  q.costBreakdown.forEach((r, idx) => {
+    const bg = idx % 2 === 0 ? WHITE : OFF;
+    rect(M, y, TW, 7, bg);
+    let rx = M;
+    txt(r.item, rx + 3, y + 5, CH, 7.5); rx += cols[0];
+    txt(r.qty, rx + 3, y + 5, MID, 7); rx += cols[1];
+    txt('₹' + fmt2(r.unitCost), rx + cols[2] - 3, y + 5, MID, 7, 'normal', 'right'); rx += cols[2];
+    txt('₹' + fmt2(r.totalCost), rx + cols[3] - 3, y + 5, CH, 7.5, 'bold', 'right');
+    y += 7;
+  });
+
+  // subtotals
+  const subtotals = [
+    {label:'Subtotal (excl. GST)', val:'₹' + fmt2(q.subtotalBeforeGST), bold:false},
+    {label:'GST @ 12%', val:'₹' + fmt2(q.gstAmount), bold:false},
+    {label:'Gross Total (incl. GST)', val:'₹' + fmt2(q.grossTotalCost), bold:true, bg:G1},
+  ];
+  if (isRes) {
+    subtotals.push({label:`Central Subsidy (PM Surya Ghar)`, val:'– ₹' + fmt2(q.centralSubsidy), bold:false, bg:[253,243,215]});
+    subtotals.push({label:`Maharashtra State Subsidy`, val:'– ₹' + fmt2(q.stateSubsidy), bold:false, bg:[253,243,215]});
+    subtotals.push({label:'NET PAYABLE AFTER SUBSIDY', val:'₹' + fmt2(q.netCostAfterSubsidy), bold:true, bg:G1, big:true});
+  }
+  subtotals.forEach(row => {
+    rect(M, y, TW, 7, row.bg || OFF);
+    txt(row.label, M + TW - cols[3] - 3, y + 5, row.big ? G9 : MID, row.big ? 8.5 : 7, row.bold ? 'bold' : 'normal', 'right');
+    txt(row.val, M + TW - 3, y + 5, row.big ? G9 : CH, row.big ? 8.5 : 7.5, 'bold', 'right');
+    y += 7;
+  });
+  line(M, y, M + TW, y, G5, 0.5);
+  y += 6;
+
+  // ── SAVINGS TABLE ──
+  txt('FINANCIAL PROJECTIONS', M, y + 6, G9, 9, 'bold');
+  y += 12;
+  const projRows = [
+    ['Current Monthly Bill', `₹${fmt2(q.currentMonthlyBillRs)}`],
+    ['Projected Monthly Bill (post solar)', `₹${fmt2(q.projectedMonthlyBillRs)}`],
+    ['Monthly Savings', `₹${fmt2(q.monthlySavingsRs)}`],
+    ['Annual Savings', `₹${fmt2(q.annualSavingsRs)}`],
+    ['Simple Payback Period', `${Number(q.simplePaybackYears).toFixed(1)} Years`],
+    ['Estimated 25-Year Net Return', `₹${fmt2(q.roi25Years)}`],
+    ['Monthly Solar Generation', `${fmt2(q.estimatedMonthlyGenKwh)} kWh`],
+    ['Annual CO₂ Offset', `${Number(q.co2SavedTonnesPerYear).toFixed(1)} Tonnes`],
+  ];
+  projRows.forEach((r, i) => {
+    rect(M, y, TW, 6.5, i % 2 === 0 ? WHITE : OFF);
+    txt(r[0], M + 4, y + 4.8, MID, 7.5);
+    txt(r[1], M + TW - 4, y + 4.8, CH, 7.5, 'bold', 'right');
+    y += 6.5;
+  });
+  y += 5;
+
+  // ── WHAT'S INCLUDED ──
+  if (y > 230) { doc.addPage(); y = 18; }
+  txt('SCOPE OF WORK & INCLUSIONS', M, y + 6, G9, 9, 'bold');
+  y += 12;
+  const includes = [
+    'Supply of premium monocrystalline solar panels (MNRE-approved brand)',
+    'Grid-tie string inverter with 5-year manufacturer warranty',
+    'MS / Aluminium mounting structure (appropriate for roof type)',
+    'DC cables, AC cables, junction box, earthing and lightning protection',
+    'Net metering application & MSEDCL grid connection assistance',
+    'System commissioning, testing & handover training',
+    'Monitoring app setup for real-time generation tracking',
+    'Generation meter and bi-directional energy meter',
+  ];
+  includes.forEach((inc, i) => {
+    rect(M, y, TW, 6, i % 2 === 0 ? WHITE : OFF);
+    txt('✓', M + 3, y + 4.5, G5, 8, 'bold');
+    txt(inc, M + 10, y + 4.5, CH, 7.5);
+    y += 6;
+  });
+  y += 5;
+
+  // ── WARRANTY & SERVICE ──
+  if (y > 220) { doc.addPage(); y = 18; }
+  txt('WARRANTY & SERVICE COMMITMENT', M, y + 6, G9, 9, 'bold');
+  y += 12;
+  const warranties = [
+    ['Solar Panel Performance Warranty', '25 Years (≥80% output guaranteed)'],
+    ['Solar Panel Product Warranty', '12 Years manufacturer defect warranty'],
+    ['Inverter Warranty', '5 Years (extendable to 10 years)'],
+    ['Mounting Structure', '10 Years against corrosion & structural defect'],
+    ['Workmanship / Installation', '2 Years by Shashwat Solar Energy'],
+    ['Annual Maintenance Contract (AMC)', 'Available – ₹3,500/yr (2 visits, cleaning & check)'],
+  ];
+  warranties.forEach((w, i) => {
+    rect(M, y, TW, 6.5, i % 2 === 0 ? WHITE : OFF);
+    txt(w[0], M + 4, y + 4.8, MID, 7.5);
+    txt(w[1], M + TW - 4, y + 4.8, CH, 7.5, 'bold', 'right');
+    y += 6.5;
+  });
+  y += 5;
+
+  // ── T&C ──
+  if (y > 200) { doc.addPage(); y = 18; }
+  rect(M, y, TW, 6, G9);
+  txt('TERMS & CONDITIONS', M + 4, y + 4.5, WHITE, 8, 'bold');
+  y += 9;
+  const tcs = [
+    '1. This quotation is valid for 30 days from the date of issue. Prices are subject to revision after validity.',
+    '2. Payment Terms: 50% advance on order confirmation, 40% before installation, 10% on completion.',
+    '3. Subsidy amounts are based on current government policy (FY 2025-26). Shashwat Solar Energy assists with all subsidy paperwork but does not guarantee subsidy disbursement timelines, which are governed by MNRE/state authorities.',
+    '4. The estimated generation and savings are based on Mumbai average irradiation data (4.5 peak sun hours/day). Actual generation may vary by ±10-15% due to local shading, weather, and seasonal variation.',
+    '5. Net metering approval is subject to MSEDCL discretion and may take 30–90 days from application.',
+    '6. Any structural reinforcement required for the rooftop will be charged separately after site assessment.',
+    '7. This quote covers system supply and installation only. Electrical panel upgrades, if required, are charged additionally.',
+    '8. All disputes are subject to Mumbai jurisdiction. Governing law: Indian Contract Act, 1872.',
+    '9. Shashwat Solar Energy reserves the right to substitute equivalent-specification components if specified models are unavailable, without affecting performance guarantees.',
+    '10. The customer agrees to provide unobstructed rooftop access and an electricity connection during installation.',
+  ];
+  tcs.forEach(tc => {
+    const lines = doc.splitTextToSize(tc, TW - 6);
+    txt(tc, M + 3, y + 4.5, MID, 6.8);
+    // use splitTextToSize for wrapped lines
+    const wrapped = doc.splitTextToSize(tc, TW - 6);
+    wrapped.forEach((ln, li) => {
+      txt(ln, M + 3, y + 4.5 + li * 4, li === 0 ? CH : MID, 6.8);
+    });
+    y += wrapped.length * 4 + 2;
+    if (y > 265) { doc.addPage(); y = 18; }
+  });
+  y += 4;
+
+  // ── SIGNATURE ──
+  if (y > 240) { doc.addPage(); y = 18; }
+  line(M, y, M + TW, y, G5, 0.5);
+  y += 8;
+  txt('Authorised by', M, y + 5, MUTED, 7.5);
+  txt('Customer Acceptance', M + TW - 60, y + 5, MUTED, 7.5);
+  y += 18;
+  line(M, y, M + 60, y, CH, 0.3);
+  line(M + TW - 60, y, M + TW, y, CH, 0.3);
+  txt('Shashwat Solar Energy', M, y + 5, G9, 7.5, 'bold');
+  txt('Signature & Date', M + TW - 60, y + 5, MID, 7.5);
+  txt('Mumbai, Maharashtra', M, y + 10, MUTED, 7);
+  y += 18;
+
+  // ── FOOTER ON ALL PAGES ──
+  const totalPages = doc.internal.getNumberOfPages();
+  for (let p = 1; p <= totalPages; p++) {
+    doc.setPage(p);
+    rect(0, 287, W, 10, G9);
+    txt('Shashwat Solar Energy  |  Mumbai, Maharashtra  |  info@shashwatsolar.in  |  This is a computer-generated estimate', W/2, 293, [180, 210, 190], 6.5, 'normal', 'center');
+    txt(`Page ${p} of ${totalPages}`, W - M, 293, [160, 200, 175], 6.5, 'normal', 'right');
+  }
+
+  doc.save(`ShashwatSolar_Quote_${q.quoteNo}.pdf`);
+}
+</script>
+</body>
+</html>
