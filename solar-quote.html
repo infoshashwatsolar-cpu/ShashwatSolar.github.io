@@ -309,6 +309,11 @@ input:focus,select:focus,textarea:focus{border-color:var(--g500)}
 </div>
 
 <script>
+// ── YOUR ANTHROPIC API KEY ──
+// Get your key from console.anthropic.com → API Keys
+const ANTHROPIC_API_KEY = 'YOUR_API_KEY_HERE';
+// ────────────────────────────────────────────────
+
 const QUOTE_NUM = () => 'SSE-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random()*9000)+1000);
 let quoteData = null;
 let quoteNo = '';
@@ -422,7 +427,12 @@ consumptionHistory: extract every month from the consumption table/chart. If not
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 1000,
@@ -528,7 +538,7 @@ function renderConsumptionAnalysis(d, hist) {
 
   // Subtitle
   document.getElementById('consSubtitle').textContent =
-    hist.length > 1 ? `Based on ${hist.length} months of consumption data from your bill` : 'Based on this month's consumption';
+    hist.length > 1 ? `Based on ${hist.length} months of consumption data from your bill` : 'Based on this month\'s consumption';
 
   // Bar chart
   const peak = maxU;
@@ -713,7 +723,12 @@ Respond ONLY with a valid JSON object. No markdown, no explanation. Exactly this
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 1000,
@@ -743,7 +758,7 @@ Respond ONLY with a valid JSON object. No markdown, no explanation. Exactly this
     document.getElementById('loading-section').style.display = 'none';
     document.getElementById('result-section').style.display = 'block';
     document.getElementById('error-box').style.display = 'block';
-    document.getElementById('error-box').textContent = 'Could not generate quote: ' + e.message + '. Please check your connection and try again.';
+    document.getElementById('error-box').textContent = 'Could not generate quote: ' + e.message + '. If this is an API key error, please check the ANTHROPIC_API_KEY in the file.';
     setStep(1);
     document.getElementById('form-section').style.display = 'block';
   }
