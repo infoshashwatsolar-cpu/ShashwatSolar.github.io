@@ -889,10 +889,25 @@ function closeMenu(){hamburger.classList.remove('open');mobileMenu.classList.rem
 document.addEventListener('click',e=>{if(!hamburger.contains(e.target)&&!mobileMenu.contains(e.target))closeMenu();});
 
 // Contact form
-function handleSubmit(e){
+async function handleSubmit(e){
   e.preventDefault();
   const btn=e.target.querySelector('.form-submit');
-  btn.textContent='✓ Enquiry Sent!';btn.style.background='#1a6630';btn.disabled=true;
+  btn.textContent='Sending…';btn.disabled=true;
+  try{
+    await fetch(SHEET_URL,{
+      method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        type:'contact',
+        name:document.getElementById('name').value,
+        phone:document.getElementById('phone').value,
+        email:document.getElementById('email').value,
+        installType:document.getElementById('type').value,
+        capacity:document.getElementById('capacity').value,
+        message:document.getElementById('msg').value
+      })
+    });
+  }catch(err){console.log('Form submit error:',err);}
+  btn.textContent='✓ Enquiry Sent!';btn.style.background='#1a6630';
   setTimeout(()=>{btn.textContent='Send Enquiry →';btn.style.background='';btn.disabled=false;e.target.reset();},3500);
 }
 
