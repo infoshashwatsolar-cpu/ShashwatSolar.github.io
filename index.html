@@ -1344,7 +1344,7 @@ function downloadPDF(){
   y+=25;
 
   // Section 1 — System Specification
-  y=secTitle(doc,y,'1   System Specification');
+  y=secTitle(doc,y,'System Specification');
   y=tblHead(doc,y,['Component','Specification','Qty','Unit Cost','Amount'],[52,58,10,27,0]);
   const specRows=[
     ['Solar Panels','Monocrystalline 400W (Waaree/Adani)',String(d.panels),R+Number(18000).toLocaleString('en-IN'),R+panelCost.toLocaleString('en-IN')],
@@ -1358,7 +1358,7 @@ function downloadPDF(){
   y+=3;
 
   // Section 2 — Ancillary
-  y=secTitle(doc,y,'2   Installation & Ancillary Charges');
+  y=secTitle(doc,y,'Installation & Ancillary Charges');
   y=tblHead(doc,y,['Item','Amount'],[165,0]);
   [['Installation & Labour Charges',R+'12,000'],
    ['Net Metering Application & Documentation',R+'3,500'],
@@ -1369,7 +1369,7 @@ function downloadPDF(){
   y+=3;
 
   // Section 3 — Cost Summary
-  y=secTitle(doc,y,'3   Cost Summary');
+  y=secTitle(doc,y,'Cost Summary');
   y=tblHead(doc,y,['Description','Amount'],[165,0]);
   y=tblRow(doc,y,['Equipment Total (Section 1)',R+equipTotal.toLocaleString('en-IN')],[165,0],false);
   y=tblRow(doc,y,['Installation & Ancillary Total (Section 2)',R+ancTotal.toLocaleString('en-IN')],[165,0],true);
@@ -1395,7 +1395,7 @@ function downloadPDF(){
   y=43;
 
   // Section 4 — Financial Returns
-  y=secTitle(doc,y,'4   Financial Returns');
+  y=secTitle(doc,y,'Financial Returns');
   y=tblHead(doc,y,['Metric','Value'],[165,0]);
   const finRows=[
     ['Monthly Bill Before Solar',R+Number(d.bill).toLocaleString('en-IN')],
@@ -1415,7 +1415,7 @@ function downloadPDF(){
   y+=4;
 
   // Section 5 — Environmental Impact
-  y=secTitle(doc,y,'5   Environmental Impact');
+  y=secTitle(doc,y,'Environmental Impact');
   const envW=57;
   [[d.co2+' T','CO2 Saved / Year'],[Math.round(d.co2*25)+' T','CO2 Over 25 Years'],['25+ Years','System Lifespan']].forEach((e,i)=>{
     const ex=15+i*(envW+4);
@@ -1429,7 +1429,7 @@ function downloadPDF(){
   y+=23;
 
   // Section 6 — Expert Analysis
-  y=secTitle(doc,y,'6   Expert Analysis');
+  y=secTitle(doc,y,'Expert Analysis');
   const aiText=document.getElementById('ai-text').textContent;
   const aiLines=doc.splitTextToSize(aiText,168);
   const aiBoxH=Math.max(22,aiLines.length*5.5+14);
@@ -1442,7 +1442,7 @@ function downloadPDF(){
   y+=aiBoxH+5;
 
   // Section 7 — Terms
-  y=secTitle(doc,y,'7   Terms & Conditions');
+  y=secTitle(doc,y,'Terms & Conditions');
   const terms=[
     'This quotation is valid for 15 days from the date of issue.',
     'Final pricing is subject to detailed site survey and equipment availability at time of order.',
@@ -1455,12 +1455,17 @@ function downloadPDF(){
   terms.forEach(t=>{const ln=doc.splitTextToSize('• '+t,172);doc.text(ln,18,y);y+=ln.length*5;});
   y+=5;
 
-  // Signature block
-  doc.setDrawColor(180,220,180);doc.setLineWidth(0.3);
-  doc.line(18,y+12,78,y+12);doc.line(108,y+12,168,y+12);
-  doc.setTextColor(130,130,130);doc.setFontSize(7.5);doc.setFont('helvetica','normal');
-  doc.text('Authorised Signatory',18,y+16);doc.text('Shashwat Solar Energy',18,y+20);
-  doc.text('Customer Signature & Date',108,y+16);
+  // AI generated note at bottom
+  doc.setFillColor(240,250,242);doc.roundedRect(15,y,180,14,2,2,'F');
+  doc.setDrawColor(180,220,180);doc.setLineWidth(0.3);doc.roundedRect(15,y,180,14,2,2,'S');
+  doc.setFillColor(45,106,63);doc.roundedRect(18,y+3,28,5,1,1,'F');
+  doc.setTextColor(255,255,255);doc.setFontSize(6.5);doc.setFont('helvetica','bold');
+  doc.text('AI GENERATED',19,y+7);
+  doc.setTextColor(100,130,100);doc.setFontSize(7.5);doc.setFont('helvetica','normal');
+  doc.text('This quotation was generated using AI assistance. For a formal site-verified quote, please contact us directly.',50,y+7);
+  doc.setTextColor(100,130,100);doc.setFontSize(7);
+  doc.text('Shashwat Solar Energy  |  shashwatsolarenergy.in  |  +91 93563 25320',50,y+12);
+  y+=18;
 
   drawPageFooter(doc,2);
   doc.save('ShashwatSolar_Quote_'+d.quoteNo+'.pdf');
