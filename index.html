@@ -1230,90 +1230,252 @@ async function saveToSheets(name,phone,email,bill,units,prop,area,m){
   }catch(e){console.log('Sheet save failed:',e);}
 }
 
+function drawPageHeader(doc,today,valid){
+  const R='\u20B9';
+  // Header bar
+  doc.setFillColor(45,106,63);doc.rect(0,0,210,40,'F');
+  // Gold accent line
+  doc.setDrawColor(232,169,32);doc.setLineWidth(0.8);doc.line(0,40,210,40);
+  // Company name
+  doc.setTextColor(255,255,255);doc.setFontSize(15);doc.setFont('helvetica','bold');
+  doc.text('SHASHWAT SOLAR ENERGY',15,13);
+  doc.setFontSize(8);doc.setFont('helvetica','normal');
+  doc.setTextColor(200,230,200);
+  doc.text('shashwatsolarenergy.in   |   +91 93563 25320   |   info.shashwatsolar@gmail.com',15,19);
+  doc.text('Mumbai, Maharashtra, India',15,24.5);
+  // Right side
+  doc.setTextColor(255,255,255);doc.setFontSize(11);doc.setFont('helvetica','bold');
+  doc.text('Solar Energy Quotation',210-15,13,{align:'right'});
+  doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(200,230,200);
+  doc.text('Date: '+today,210-15,19,{align:'right'});
+  doc.text('Valid Until: '+valid,210-15,24.5,{align:'right'});
+}
+
+function drawPageFooter(doc){
+  doc.setFillColor(45,106,63);doc.rect(0,282,210,15,'F');
+  doc.setDrawColor(232,169,32);doc.setLineWidth(0.8);doc.line(0,282,210,282);
+  doc.setTextColor(200,230,200);doc.setFontSize(7.5);doc.setFont('helvetica','normal');
+  doc.text('Shashwat Solar Energy  |  Mumbai, Maharashtra, India  |  shashwatsolarenergy.in',15,288);
+  doc.text('This is a preliminary estimate. Final pricing is subject to site inspection and equipment availability. Subsidies subject to government policy.',15,293);
+}
+
+function sectionHeader(doc,y,text){
+  doc.setFontSize(8);doc.setFont('helvetica','bold');
+  doc.setTextColor(46,125,63);
+  doc.text(text.toUpperCase(),15,y);
+  doc.setDrawColor(200,230,200);doc.setLineWidth(0.3);
+  doc.line(15,y+1,195,y+1);
+  return y+6;
+}
+
+function tableHeader(doc,y,cols,widths){
+  doc.setFillColor(240,250,242);doc.rect(15,y-4,180,7,'F');
+  doc.setDrawColor(200,230,200);doc.setLineWidth(0.3);doc.rect(15,y-4,180,7,'S');
+  doc.setTextColor(46,125,63);doc.setFontSize(7.5);doc.setFont('helvetica','bold');
+  let x=18;
+  cols.forEach((c,i)=>{
+    if(i===cols.length-1)doc.text(c,x+widths[i],y,{align:'right'});
+    else doc.text(c,x,y);
+    x+=widths[i];
+  });
+  return y+7;
+}
+
+function tableRow(doc,y,cells,widths,isAlt,greenLast){
+  if(isAlt){doc.setFillColor(247,252,247);doc.rect(15,y-4,180,7,'F');}
+  doc.setDrawColor(220,240,220);doc.setLineWidth(0.2);doc.line(15,y+3,195,y+3);
+  doc.setFontSize(8.5);doc.setFont('helvetica','normal');doc.setTextColor(28,34,20);
+  let x=18;
+  cells.forEach((c,i)=>{
+    if(i===cells.length-1){
+      if(greenLast)doc.setTextColor(46,125,63);
+      doc.text(String(c),x+widths[i],y,{align:'right'});
+      doc.setTextColor(28,34,20);
+    } else {
+      doc.text(String(c),x,y);
+    }
+    x+=widths[i];
+  });
+  return y+7;
+}
+
 function downloadPDF(){
   const{jsPDF}=window.jspdf;
   const doc=new jsPDF({unit:'mm',format:'a4'});
   const d=quoteData;
+  const R='\u20B9';
   const today=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
   const valid=new Date(Date.now()+15*24*60*60*1000).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
-  const R='\u20B9';
 
-  doc.setFillColor(13,51,24);doc.rect(0,0,210,38,'F');
-  doc.setTextColor(255,255,255);doc.setFontSize(20);doc.setFont('helvetica','bold');
-  doc.text('SHASHWAT SOLAR ENERGY',15,17);
-  doc.setFontSize(8.5);doc.setFont('helvetica','normal');
-  doc.text("Mumbai's Trusted Solar Retailer  |  shashwatsolarenergy.in  |  +91 93563 25320",15,25);
-  doc.setFillColor(46,153,71);doc.roundedRect(15,28,40,7,2,2,'F');
-  doc.setFontSize(6.5);doc.setFont('helvetica','bold');doc.text('AI-GENERATED ESTIMATE',17,33);
+  // Estimated cost breakdown (approximated from total)
+  const panelCost=Math.round(d.panels*18000);
+  const inverterCost=Math.round(d.systemKw*9000);
+  const mountCost=Math.round(d.systemKw*3500);
+  const cableCost=Math.round(d.systemKw*2500);
+  const earthCost=4000;
+  const monitorCost=6500;
+  const equipTotal=panelCost+inverterCost+mountCost+cableCost+earthCost+monitorCost;
+  const labourCost=12000;
+  const netMeterCost=3500;
+  const pmCost=1500;
+  const msedclCost=2000;
+  const transCost=2500;
+  const ancTotal=labourCost+netMeterCost+pmCost+msedclCost+transCost;
+  const grossTotal=equipTotal+ancTotal;
+  const centralSubsidy=d.systemKw>=3?78000:d.systemKw>=2?60000:30000;
+  const stateSubsidy=10000;
+  const netPayable=grossTotal-centralSubsidy-stateSubsidy;
+  const annualSavings=d.monthlySavings*12;
+  const savings10=annualSavings*10;
+  const savings25=annualSavings*25;
 
-  doc.setTextColor(13,51,24);doc.setFontSize(17);doc.setFont('helvetica','bold');
-  doc.text('Solar Energy Quotation',15,52);
-  doc.setFontSize(8.5);doc.setFont('helvetica','normal');doc.setTextColor(120,120,120);
-  doc.text('Date: '+today,135,47);doc.text('Valid Until: '+valid,135,53);
+  // ── PAGE 1 ──
+  drawPageHeader(doc,today,valid);
 
-  doc.setFillColor(240,250,242);doc.roundedRect(15,58,85,34,3,3,'F');
-  doc.setTextColor(13,51,24);doc.setFontSize(7.5);doc.setFont('helvetica','bold');doc.text('PREPARED FOR',20,65);
-  doc.setTextColor(33,37,41);doc.setFontSize(11);doc.setFont('helvetica','bold');doc.text(d.name||'—',20,72);
-  doc.setFontSize(8.5);doc.setFont('helvetica','normal');doc.setTextColor(73,80,87);
-  if(d.phone)doc.text('Phone: '+d.phone,20,79);
-  if(d.email)doc.text('Email: '+d.email,20,85);
+  // Meta boxes
+  let y=47;
+  doc.setFillColor(240,250,242);doc.roundedRect(15,y,89,22,2,2,'F');
+  doc.setDrawColor(200,230,200);doc.setLineWidth(0.3);doc.roundedRect(15,y,89,22,2,2,'S');
+  doc.setTextColor(100,130,100);doc.setFontSize(7);doc.setFont('helvetica','bold');doc.text('PREPARED FOR',19,y+5);
+  doc.setTextColor(28,34,20);doc.setFontSize(10);doc.setFont('helvetica','bold');doc.text(d.name||'—',19,y+11);
+  doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(74,82,64);
+  if(d.phone)doc.text('Phone: '+d.phone,19,y+16);
+  if(d.email)doc.text('Email: '+d.email,19,y+21);
 
-  doc.setFillColor(240,250,242);doc.roundedRect(110,58,85,34,3,3,'F');
-  doc.setTextColor(13,51,24);doc.setFontSize(7.5);doc.setFont('helvetica','bold');doc.text('PROPERTY DETAILS',115,65);
-  doc.setTextColor(33,37,41);doc.setFontSize(8.5);doc.setFont('helvetica','normal');
-  doc.text('Type: '+(d.propLabel||'—'),115,72);
-  doc.text('Location: Mumbai, Maharashtra',115,79);
-  if(d.area&&d.area!=='N/A')doc.text('Roof area: '+d.area+' sq ft',115,85);
+  doc.setFillColor(240,250,242);doc.roundedRect(108,y,87,22,2,2,'F');
+  doc.setDrawColor(200,230,220);doc.setLineWidth(0.3);doc.roundedRect(108,y,87,22,2,2,'S');
+  doc.setTextColor(100,130,100);doc.setFontSize(7);doc.setFont('helvetica','bold');doc.text('PROPERTY DETAILS',112,y+5);
+  doc.setTextColor(28,34,20);doc.setFontSize(10);doc.setFont('helvetica','bold');doc.text(d.propLabel||'—',112,y+11);
+  doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(74,82,64);
+  doc.text('Location: Mumbai, Maharashtra',112,y+16);
+  if(d.area&&d.area!=='N/A')doc.text('Roof area: '+d.area+' sq ft',112,y+21);
 
-  doc.setTextColor(13,51,24);doc.setFontSize(11);doc.setFont('helvetica','bold');doc.text('System Recommendation',15,102);
-  doc.setFillColor(13,51,24);doc.rect(15,106,180,9,'F');
-  doc.setTextColor(255,255,255);doc.setFontSize(8);doc.setFont('helvetica','bold');
-  doc.text('Parameter',20,112);doc.text('Your Data',82,112);doc.text('Recommendation',132,112);
+  y+=28;
 
-  const rows=[
-    ['Monthly electricity bill',R+(d.bill||0).toLocaleString('en-IN'),'Offset 85% with solar'],
-    ['Units consumed',''+d.units+' kWh/month','Covered by system'],
-    ['Rate per unit',R+d.ratePerUnit+'/unit',R+'0 for solar units'],
-    ['Recommended system size','Based on usage',d.systemKw+' kW monocrystalline'],
-    ['Number of panels','Based on system',d.panels+' panels (400W each)'],
-    ['Estimated installation cost','—',R+d.totalCost.toLocaleString('en-IN')],
-    ['Monthly savings','—',R+d.monthlySavings.toLocaleString('en-IN')],
-    ['Simple payback period','—',d.payback+' years'],
-    ['CO2 saved annually','—',d.co2+' tonnes/year'],
-    ['System lifespan','—','25+ years'],
+  // Section 1
+  y=sectionHeader(doc,y,'System Specification');
+  y=tableHeader(doc,y,['Component','Specification','Qty','Unit Cost','Amount'],[50,62,10,28,30]);
+  const specRows=[
+    ['Solar Panels','Monocrystalline 400W (Waaree/Adani)',String(d.panels),R+'18,000',R+panelCost.toLocaleString('en-IN')],
+    ['Grid-Tie Inverter',d.systemKw+'kW Single-Phase','1',R+Math.round(inverterCost).toLocaleString('en-IN'),R+inverterCost.toLocaleString('en-IN')],
+    ['Mounting Structure','GI Hot-Dip Galvanised','1 set',R+mountCost.toLocaleString('en-IN'),R+mountCost.toLocaleString('en-IN')],
+    ['DC/AC Cables & Conduits','Polycab FR Grade','1 set',R+cableCost.toLocaleString('en-IN'),R+cableCost.toLocaleString('en-IN')],
+    ['Earthing & Lightning Arrestor','As per IS Standards','1 set',R+'4,000',R+'4,000'],
+    ['Solar Monitoring System','Wi-Fi Enabled, Mobile App','1',R+'6,500',R+'6,500'],
   ];
-  rows.forEach((row,i)=>{
-    const y=120+i*9;
-    if(i%2===0){doc.setFillColor(248,249,250);doc.rect(15,y-5,180,9,'F');}
-    doc.setTextColor(33,37,41);doc.setFontSize(8);doc.setFont('helvetica','bold');doc.text(row[0],20,y);
-    doc.setFont('helvetica','normal');doc.text(row[1],82,y);
-    doc.setTextColor(26,102,48);doc.text(row[2],132,y);
+  specRows.forEach((r,i)=>{y=tableRow(doc,y,r,[50,62,10,28,30],i%2===0,true);});
+  y+=4;
+
+  // Section 2
+  y=sectionHeader(doc,y,'Installation & Ancillary Charges');
+  y=tableHeader(doc,y,['Item','Amount'],[150,30]);
+  const ancRows=[
+    ['Installation & Labour Charges',R+'12,000'],
+    ['Net Metering Application & Documentation',R+'3,500'],
+    ['PM Surya Ghar Portal Registration',R+'1,500'],
+    ['MSEDCL / Adani Inspection & Approval Coordination',R+'2,000'],
+    ['Transportation & Logistics',R+'2,500'],
+  ];
+  ancRows.forEach((r,i)=>{y=tableRow(doc,y,r,[150,30],i%2===0,true);});
+  y+=4;
+
+  // Section 3 — Cost Summary
+  y=sectionHeader(doc,y,'Cost Summary');
+  y=tableHeader(doc,y,['Description','Amount'],[150,30]);
+  const costRows=[
+    ['Equipment Total (Section 1)',R+equipTotal.toLocaleString('en-IN'),false],
+    ['Installation & Ancillary Total (Section 2)',R+ancTotal.toLocaleString('en-IN'),false],
+  ];
+  costRows.forEach((r,i)=>{y=tableRow(doc,y,[r[0],r[1]],[150,30],i%2===0,true);});
+  // Gross total row
+  doc.setFillColor(245,245,245);doc.rect(15,y-4,180,7,'F');
+  doc.setFontSize(8.5);doc.setFont('helvetica','bold');doc.setTextColor(28,34,20);
+  doc.text('Gross Total',18,y);doc.text(R+grossTotal.toLocaleString('en-IN'),195,y,{align:'right'});
+  y+=7;
+  // Subsidy rows
+  doc.setFontSize(8.5);doc.setFont('helvetica','normal');doc.setTextColor(46,125,63);
+  doc.text('PM Surya Ghar Subsidy (Central Govt)',18,y);doc.text('- '+R+centralSubsidy.toLocaleString('en-IN'),195,y,{align:'right'});
+  y+=7;
+  doc.text('Maharashtra State Subsidy',18,y);doc.text('- '+R+stateSubsidy.toLocaleString('en-IN'),195,y,{align:'right'});
+  y+=7;
+  // Net payable
+  doc.setFillColor(45,106,63);doc.rect(15,y-4,180,8,'F');
+  doc.setTextColor(255,255,255);doc.setFontSize(9.5);doc.setFont('helvetica','bold');
+  doc.text('Net Payable by Customer',18,y+1);doc.text(R+netPayable.toLocaleString('en-IN'),195,y+1,{align:'right'});
+  y+=12;
+  doc.setTextColor(120,120,120);doc.setFontSize(7.5);doc.setFont('helvetica','normal');
+  doc.text('* Subsidies credited directly to customer bank account via DBT within 30 days of commissioning.',15,y);
+  y+=8;
+
+  // Section 4 — Financial Returns
+  y=sectionHeader(doc,y,'Financial Returns');
+  y=tableHeader(doc,y,['Metric','Value'],[150,30]);
+  const finRows=[
+    ['Monthly Bill Before Solar',R+Number(d.bill).toLocaleString('en-IN')],
+    ['Estimated Monthly Bill After Solar',R+Math.round(d.bill*0.15).toLocaleString('en-IN')],
+    ['Monthly Savings',R+d.monthlySavings.toLocaleString('en-IN')],
+    ['Annual Savings (Year 1)',R+annualSavings.toLocaleString('en-IN')],
+    ['Simple Payback Period',d.payback+' years'],
+    ['10-Year Cumulative Savings',R+savings10.toLocaleString('en-IN')],
+    ['25-Year Cumulative Savings',R+savings25.toLocaleString('en-IN')],
+  ];
+  finRows.forEach((r,i)=>{
+    if(i===finRows.length-1){
+      doc.setFillColor(240,250,242);doc.rect(15,y-4,180,7,'F');
+      doc.setFontSize(8.5);doc.setFont('helvetica','bold');doc.setTextColor(46,125,63);
+      doc.text(r[0],18,y);doc.text(r[1],195,y,{align:'right'});
+      y+=7;
+    } else {
+      y=tableRow(doc,y,r,[150,30],i%2===0,true);
+    }
+  });
+  y+=4;
+
+  // Section 5 — Environmental Impact
+  y=sectionHeader(doc,y,'Environmental Impact');
+  const envW=58;
+  [[d.co2+' T','CO2 SAVED / YEAR'],[Math.round(d.co2*25)+' T','CO2 OVER 25 YEARS'],['25+ Yrs','SYSTEM LIFESPAN']].forEach((e,i)=>{
+    const ex=15+i*(envW+3);
+    doc.setFillColor(240,250,242);doc.roundedRect(ex,y,envW,16,2,2,'F');
+    doc.setDrawColor(200,230,200);doc.setLineWidth(0.3);doc.roundedRect(ex,y,envW,16,2,2,'S');
+    doc.setTextColor(46,125,63);doc.setFontSize(14);doc.setFont('helvetica','bold');
+    doc.text(e[0],ex+envW/2,y+9,{align:'center'});
+    doc.setTextColor(120,150,120);doc.setFontSize(6.5);doc.setFont('helvetica','normal');
+    doc.text(e[1],ex+envW/2,y+14,{align:'center'});
+  });
+  y+=21;
+
+  // Section 6 — Expert Analysis
+  y=sectionHeader(doc,y,'Expert Analysis');
+  const aiText=document.getElementById('ai-text').textContent;
+  const aiLines=doc.splitTextToSize(aiText,164);
+  const aiBoxH=Math.max(22,aiLines.length*5.5+14);
+  doc.setFillColor(240,250,242);doc.roundedRect(15,y,180,aiBoxH,2,2,'F');
+  doc.setDrawColor(200,230,200);doc.setLineWidth(0.3);doc.roundedRect(15,y,180,aiBoxH,2,2,'S');
+  doc.setFillColor(46,125,63);doc.roundedRect(18,y+3,30,6,2,2,'F');
+  doc.setTextColor(255,255,255);doc.setFontSize(7);doc.setFont('helvetica','bold');doc.text('EXPERT ANALYSIS',20,y+7);
+  doc.setTextColor(28,34,20);doc.setFontSize(8.5);doc.setFont('helvetica','normal');
+  doc.text(aiLines,18,y+14);
+  y+=aiBoxH+5;
+
+  // Section 7 — Terms
+  y=sectionHeader(doc,y,'Terms & Conditions');
+  const terms=[
+    'This quotation is valid for 15 days from the date of issue.',
+    'Final pricing is subject to detailed site survey and equipment availability at time of order.',
+    'Subsidy amounts are indicative and subject to government policy at time of installation.',
+    'Payment terms: 50% advance on order confirmation, 50% on completion of installation.',
+    '25-year panel performance warranty and 5-year installation workmanship warranty included.',
+    'Net metering approval timelines are subject to MSEDCL/Adani processing (typically 30-90 days).',
+  ];
+  doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(120,120,120);
+  terms.forEach(t=>{
+    const lines=doc.splitTextToSize('• '+t,175);
+    doc.text(lines,18,y);
+    y+=lines.length*5;
   });
 
-  const aiY=120+rows.length*9+8;
-  const aiRaw=document.getElementById('ai-text').textContent;
-  const aiLines=doc.splitTextToSize(aiRaw,168);
-  const aiBoxH=Math.max(32,aiLines.length*6+20);
-  doc.setFillColor(240,250,242);doc.roundedRect(15,aiY,180,aiBoxH,3,3,'F');
-  doc.setFillColor(46,153,71);doc.roundedRect(18,aiY+4,28,6,2,2,'F');
-  doc.setTextColor(255,255,255);doc.setFontSize(6.5);doc.setFont('helvetica','bold');doc.text('AI ANALYSIS',20,aiY+8);
-  doc.setTextColor(13,51,24);doc.setFontSize(8.5);doc.setFont('helvetica','normal');
-  doc.text(aiLines,18,aiY+17);
-
-  const tY=aiY+aiBoxH+6;
-  doc.setTextColor(80,80,80);doc.setFontSize(7.5);doc.setFont('helvetica','bold');doc.text('Terms & Conditions',15,tY);
-  doc.setFont('helvetica','normal');
-  ['• Quotation valid for 15 days from date of issue.',
-   '• Estimates based on Mumbai solar irradiance (5.5 peak sun hours/day), subject to site inspection.',
-   '• Payment: 50% upfront, 50% on completion. Final pricing subject to site survey.',
-   '• 25-year panel warranty and 5-year installation warranty included.'
-  ].forEach((t,i)=>doc.text(t,15,tY+6+(i*5)));
-
-  doc.setFillColor(13,51,24);doc.rect(0,282,210,15,'F');
-  doc.setTextColor(255,255,255);doc.setFontSize(8);
-  doc.text('Shashwat Solar Energy  |  Mumbai, Maharashtra, India',15,290);
-  doc.text('shashwatsolarenergy.in  |  info.shashwatsolar@gmail.com  |  +91 93563 25320',15,295);
-
+  drawPageFooter(doc);
   doc.save('ShashwatSolar_Quote_'+(d.name||'Customer').replace(/\s+/g,'_')+'.pdf');
 }
 </script>
